@@ -1,0 +1,31 @@
+---
+title: "Untitled"
+format: html
+editor: visual
+---
+
+
+##Question: How do average pit stop times compare across teams in a single season—and compare the constructors standing
+
+Data :
+
+Pit stop times endpoint (you can pull every pit stop for every race
+
+Race results endpoint (to tie pit stops back to finishing positions)
+
+mpact of Tyre Compound on Pit Stop Duration
+
+##If you cluster drivers by # of stops + avg stop time, which strategy‐clusters gets the highest podium percentages?
+
+Data sets:
+
+pit_stops
+
+race_results
+
+##Pit-Stop Mastery: Who Gains Most from Strategy?
+
+daata: pit_stops + lap_times + results + status
+
+Idea: Examine whether faster pit stops (and timing under Safety Car vs. green flag) correlate with larger position gains on the out-lap—and how often those gains translate into podiums vs. retirements.
+
