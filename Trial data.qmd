@@ -1,0 +1,49 @@
+---
+title: "trying data"
+format: html
+editor: visual
+---
+
+```{r}
+library(tidyverse)
+```
+
+
+```{r}
+library(httr)
+library(jsonlite)
+
+getPitStops <- function(season = "2024", round = "5") {
+  url <- sprintf("https://ergast.com/api/f1/%s/%s/pitstops.json?limit=1000",
+                 season, round)
+  res <- GET(url)
+  stop_for_status(res)
+  
+  # 1) Parse raw JSON into an R list
+  data_list <- fromJSON(content(res, as = "text", encoding = "UTF-8"),
+                        simplifyVector = FALSE)
+  
+  # 2) Drill into the RaceTable → Races element
+  races <- data_list$MRData$RaceTable$Races
+  
+  # 3) If there's no race (or no pit stops), return an empty df
+  if (length(races) == 0 || is.null(races[[1]]$PitStops)) {
+    message("No pit-stop data for ", season, " round ", round)
+    return(data.frame())
+  }
+  
+  # 4) Extract the PitStops list and coerce to data.frame
+  pitstops_list <- races[[1]]$PitStops
+  pitstops_df   <- do.call(rbind, lapply(pitstops_list, as.data.frame))
+  
+  # 5) Clean up rownames & return
+  rownames(pitstops_df) <- NULL
+  pitstops_df
+}
+
+# Try it out:
+ps_2024_r5 <- getPitStops("2024", "5")
+head(ps_2024_r5)
+
+```
+
