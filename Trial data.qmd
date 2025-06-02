@@ -49,8 +49,8 @@ head(ps_2024_r5)
 ```
 ## DID NOT WORK
 ```{r}
-pitstops_df <- read.csv(here::here("data/pit_stops.csv"))
-unique(pitstops_df$duration)
+#pitstops_df <- read.csv(here::here("data/pit_stops.csv"))
+#unique(pitstops_df$duration)
 
 #pitstops_df$duration_secs <- period_to_seconds(ms(pitstops_df$duration))
 
@@ -66,5 +66,21 @@ unique(pitstops_df$duration)
 
 
 #mean(pitstops_df$parsed_duration)
+```
+
+## tryinng to see distribution of pitstop times
+```{r}
+library(TidyDensity)
+
+pitstops_df <- read.csv(here::here("data/pit_stops.csv"))
+pitstops_df$seconds <- pitstops_df$milliseconds/1000
+
+mean_seconds <- mean(pitstops_df$seconds)
+median_seconds <- median(pitstops_df$seconds)
+pitstops_df$seconds |>
+  tidy_empirical() |>
+  tidy_autoplot()
+
+
 ```
 
