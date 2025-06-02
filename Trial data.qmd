@@ -6,9 +6,10 @@ editor: visual
 
 ```{r}
 library(tidyverse)
+library(lubridate)
 ```
 
-
+## DID NOT WORK
 ```{r}
 library(httr)
 library(jsonlite)
@@ -45,5 +46,25 @@ getPitStops <- function(season = "2024", round = "5") {
 ps_2024_r5 <- getPitStops("2024", "5")
 head(ps_2024_r5)
 
+```
+## DID NOT WORK
+```{r}
+pitstops_df <- read.csv(here::here("data/pit_stops.csv"))
+unique(pitstops_df$duration)
+
+#pitstops_df$duration_secs <- period_to_seconds(ms(pitstops_df$duration))
+
+
+#pitstops_df$parsed_duration <- ms(pitstops_df$duration)
+
+
+#numeric_secs <- period_to_seconds(pitstops_df$parsed_duration)
+
+#print(pitstops_df$parsed_duration)
+
+#print(pitstops_df$parsed_duration)
+
+
+#mean(pitstops_df$parsed_duration)
 ```
 
