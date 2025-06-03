@@ -42,7 +42,7 @@ Do faster pitstops actually lead to better race results, or is it basically a no
 
 #### 2.1 What data will you be using to answer that question?
 
-I am using the Ergast database [Ergast database](http://ergast.com/mrd/db/) because it provides comprehensive, well-structured CSV datasets containing all necessary variables—such as pit-stop durations (milliseconds), driver IDs, race IDs, finishing positions, and race metadata. The data covers every Formula 1 race from 1950 onward, and I focus on the modern era (2009–2024) where pit-stop timing is reliably recorded. This makes it suitable for analyzing the relationship between pit-stop speed and race results.
+I am using the Ergast database [Ergast database](http://ergast.com/mrd/db/) because it provides comprehensive, well-structured CSV datasets containing all necessary variables—such as pit-stop durations (milliseconds), driver IDs, race IDs, finishing positions, and race metadata. The data covers every Formula 1 race from 1950 onward, and I focus on the modern era (20011–2024) where pit-stop timing is reliably recorded. This makes it suitable for analyzing the relationship between pit-stop speed and race results.
 
 **Licence:**
 The Ergast database permits free use of its data and API strictly for personal, educational, and research purposes. It explicitly forbids charging any fees for applications or services that use the data. This non-commercial usage policy aligns perfectly with the requirements of this academic project. [Terms and Conditions](http://ergast.com/mrd/terms/)
@@ -75,7 +75,7 @@ The Ergast database permits free use of its data and API strictly for personal, 
 
   a. By joining on raceId, we can replace numeric IDs in pit_stops.csv and results.csv with the name (e.g. “Australian Grand Prix 2024”), making tables and plots instantly comprehensible.
     
-  b. The year field lets us filter or group races by season (e.g. isolate 2009 vs. 2014 vs. 2019 vs. 2024).
+  b. The`year` field lets us filter or group races by season (e.g. isolate 2011 vs. 2015 vs. 2019 vs. 2024).
     
 4. **Drivers** (`drivers.csv`)
 
@@ -100,7 +100,7 @@ The Ergast dataset is **observational data**, comprising recorded measurements o
 
 - **Data Limitations:**
 
-  1. While pit-stop durations are accurately recorded from 2009 onward, earlier years have incomplete or missing data.
+  1. The  pit stop dataset only contains detailed pit stop timing data from around the 2010–2011 season onward. As a result, no pit stop information is available for races prior to this period. This limitation means that any analysis involving pit stop durations must exclude seasons before 2011, potentially reducing the historical range of the study.
 
   2. Some anomalies exist, such as rare outliers in pit-stop duration likely due to timing errors or race incidents, which require filtering during analysis.
 
@@ -116,7 +116,7 @@ The Ergast dataset is **observational data**, comprising recorded measurements o
 
 ### 4.1 Data Download and Processing Steps
 
-1. **Data download -**
+1. **Data Download -**
 
   -  I visited the Ergast database website at http://ergast.com/mrd/db/.
 
@@ -136,7 +136,64 @@ The Ergast dataset is **observational data**, comprising recorded measurements o
 
     - `status.csv`
 
+2. **Load in Data**
 
+```{r, message=FALSE}
+library(tidyverse)
+pitstops_df <- read.csv(here::here("data/pit_stops.csv"))
+
+results_df <- read.csv(here::here("data/results.csv"))
+
+race_df <- read.csv(here::here("data/races.csv"))
+
+driver_df <- read.csv(here::here("data/drivers.csv"))
+
+constructor_df <- read.csv(here::here("data/constructors.csv"))
+
+status_df <- read.csv(here::here("data/status.csv"))
+```
+
+3. **Data Processing**
+
+```{r}
+drivers_lookup <- driver_df %>%
+  mutate(driver_full = paste(forename, surname)) %>%
+  select(driverId, driver_full)
+
+races_lookup <- race_df %>%
+  mutate(race_full = paste(name, year)) %>%
+  select(raceId, race_full, year)
+
+constructors_lookup <- constructor_df %>%
+  select(constructorId, constructor_name = name)
+
+# make a combines df
+combined_df <- pitstops_df %>%
+  left_join(drivers_lookup, by = "driverId") %>%
+  left_join(races_lookup, by = "raceId") %>%
+  left_join(
+    results_df %>%
+      select(raceId, driverId, constructorId, positionOrder, positionText, grid, statusId),
+    by = c("raceId", "driverId")
+  ) %>%
+  left_join(constructors_lookup, by = "constructorId") %>%
+  left_join(status_df, by = "statusId") %>%
+  filter(year %in% c(2011, 2015, 2019, 2024)) %>%
+  select(
+    driver = driver_full,
+    race = race_full,
+    year,
+    constructor = constructor_name,
+    stop,
+    lap,
+    duration,
+    milliseconds,
+    positionOrder,
+    positionText,
+    grid,
+    status
+  )
+```
 
 
 
