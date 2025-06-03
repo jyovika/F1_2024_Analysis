@@ -124,6 +124,8 @@ The Ergast dataset is **observational data**, comprising recorded measurements o
 
   - I downloaded the ZIP folder containing multiple CSV files, including circuits, constructor results, constructor standings, constructors, driver standings, lap times, pit stops, qualifying, races, results, sprint results, and status—each in .csv format.
 
+I extracted the ZIP file and organized the relevant CSV files into a data/ directory for easy access.
+
   - For this project, I selected the following relevant CSV files:
 
     - `pit_stops.csv`
@@ -155,6 +157,15 @@ status_df <- read.csv(here::here("data/status.csv"))
 
 3. **Data Processing**
 
+**Step 1:** Create Driver, Races and Constructors Lookup Table:
+
+- To make the data more readable and easier to work with, I created lookup tables for drivers, races, and constructors by replacing their numeric IDs with human-friendly names.
+
+    - For drivers, I combined their first and last names.
+
+    - For races, I combined the race name with the year to uniquely identify each event.
+
+    - For constructors, I selected their names corresponding to their IDs.
 ```{r}
 drivers_lookup <- driver_df %>%
   mutate(driver_full = paste(forename, surname)) %>%
@@ -166,8 +177,13 @@ races_lookup <- race_df %>%
 
 constructors_lookup <- constructor_df %>%
   select(constructorId, constructor_name = name)
+```
 
-# make a combines df
+**Step 2:** Combine Data into One Table:
+
+I merged the pit stop data with all lookup tables and selected relevant columns from race results and status tables. This creates one comprehensive dataset including driver names, race info, constructor names, pit stop details, race finishing positions, grid positions, and race outcomes.
+
+```{r}
 combined_df <- pitstops_df %>%
   left_join(drivers_lookup, by = "driverId") %>%
   left_join(races_lookup, by = "raceId") %>%
@@ -192,9 +208,13 @@ combined_df <- pitstops_df %>%
     grid,
     status
   )
+```
 
-# making separate dfs for each year
+**Step 3:** Filter Data by Year and Pit Stop Duration:
 
+To focus the analysis on realistic pit stop times, I filtered out stops longer than 50 seconds and created separate datasets for each target year (2011, 2015, 2019, 2024).
+
+```{r}
 combined_2011 <- combined_df %>%
   filter(year == 2011, milliseconds <= 50000)
 
