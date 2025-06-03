@@ -84,3 +84,32 @@ pitstops_df$seconds |>
 
 ```
 
+## looking at results csv
+
+```{r}
+results_df <- read.csv(here::here("data/results.csv"))
+```
+
+## looking at race csv
+
+```{r}
+race_df <- read.csv(here::here("data/races.csv"))
+```
+
+## looking at driver csv
+```{r}
+driver_df <- read.csv(here::here("data/drivers.csv"))
+```
+
+## looking at constructor csv
+
+```{r}
+constructor_df <- read.csv(here::here("data/constructors.csv"))
+```
+
+## looking at status csv
+
+```{r}
+status_df <- read.csv(here::here("data/status.csv"))
+```
+

@@ -11,14 +11,12 @@ editor: visual
 
 ## Data and Documenting
 
-::: callout-info
-**Main Question**
+
+#### 1.1 Main Question
 
 Do faster pitstops actually lead to better race results, or is it basically a non-factor?
-:::
 
-::: callout-info
-**Sub-Questions**
+#### 1.2 Sub-Questions
 
 1.  **How do we even define “faster”?**
 
@@ -33,15 +31,70 @@ Do faster pitstops actually lead to better race results, or is it basically a no
     -   Did pit-crew wizardry matter more back in, say, 2010 than it does in 2024?
 
     -   Are teams converging on similar pit times now, making the gap less impactful?
-:::
 
-::: callout-info
-**Why I chose this question**
+#### 1.3 Why I chose this question
 
 1.  **Data-Driven Rigor** As a lifelong Formula 1 enthusiast, I’ve always been fascinated by the precision and strategy behind every race—and I finally have the tools to test my assumptions. Pit-stop durations and finishing positions are publicly available in CSVs and APIs, so rather than relying on anecdote or speculation, I can analyze hard numbers to determine whether quick pit stops truly influence race outcomes.
 
 2.  **Illuminating an Underappreciated Factor** Everyone focuses on qualifying laps and engine performance, but pit-crew efficiency often feels like F1’s “secret sauce.” I’ve repeatedly wondered if those sub-23-second tire changes really move the needle on track position. By investigating this question, I hope to shed light on whether the hype around pit-crew speed is justified or if it’s overemphasized relative to other strategic elements.
-:::
+
+3. **Future-Oriented Perspective** Formula 1 evolves rapidly: regulations change, technology advances, and strategies shift from one season to the next. I’ve long been curious about whether a fast pit stop was just a 2010-era advantage or if its impact has remained significant through 2024. By examining this question across multiple seasons, I aim to determine whether pit-lane efficiency remains a decisive factor or if its margin of influence has diminished over time.
+
+#### 2.1 What data will you be using to answer that question?
+
+I am using the Ergast database [Ergast database](http://ergast.com/mrd/db/) because it provides comprehensive, well-structured CSV datasets containing all necessary variables—such as pit-stop durations (milliseconds), driver IDs, race IDs, finishing positions, and race metadata. The data covers every Formula 1 race from 1950 onward, and I focus on the modern era (2009–2024) where pit-stop timing is reliably recorded. This makes it suitable for analyzing the relationship between pit-stop speed and race results.
+
+**Licence:**
+The Ergast database permits free use of its data and API strictly for personal, educational, and research purposes. It explicitly forbids charging any fees for applications or services that use the data. This non-commercial usage policy aligns perfectly with the requirements of this academic project. [Terms and Conditions](http://ergast.com/mrd/terms/)
+
+#### 2.2 Explain why this data is suitable for the task.
+
+1. **Pit Stops** (`pit_stops.csv`)
+
+- Why it’s suitable:
+
+    a. My core question hinges on “how fast was each pit stop?”—and the milliseconds column is the ground truth for that.
+
+    b. Because Ergast covers every Grand Prix from 2009 onward, this table gives consistent, machine-readable pit times for thousands of stops.
+
+2. **Race Results** (`results.csv`)
+
+- Why it’s suitable:
+
+    a. To answer “do faster pit stops correlate with better finishes”, I need each driver’s eventual race result— `positionOrder` gives a clean, numeric rank (1, 2, 3 …), while positionText preserves textual qualifiers (e.g. “R” for retired).
+
+    b. Joining on `raceId`, `driverId` allows us to link each driver’s best pit‐stop duration (from `pit_stops.csv`) with exactly where they finished.
+
+    d. The`grid` lets me control for starting position if needed (e.g. “did a fast pit stop help someone gain more places than they started?”).
+
+    e.  statusId distinguishes DNFs (where a quick stop might not translate into a good finish) from drivers who actually crossed the line.
+
+3. **Races** (`races.csv`)
+
+- Why it’s suitable:
+
+    a. By joining on raceId, we can replace numeric IDs in pit_stops.csv and results.csv with the name (e.g. “Australian Grand Prix 2024”), making tables and plots instantly comprehensible.
+    
+    b. The year field lets us filter or group races by season (e.g. isolate 2009 vs. 2014 vs. 2019 vs. 2024).
+    
+4. **Drivers** (`drivers.csv`)
+
+- Why it’s suitable:
+
+    a. I can join on driverId to replace that numeric ID with a more readable label. For instance, create a driver_full field by concatenating forename + " " + surname (e.g. "Lewis Hamilton").
+    
+5. **Constructors** (`constructors.csv`)
+
+- Why it’s suitable:
+
+    a. By joining on constructorId, I can label each pit‐stop or result row with the team name (rather than a numeric code). For example, "Red Bull Racing" vs. "McLaren".
+
+6. **Status** (`status.csv`)
+
+    a. In `results.csv`, each driver’s race outcome is labeled by `statusId`. Without context, statusId = 1 vs. statusId = 3 vs. statusId = 14 doesn’t tell you anything. By joining to status.csv, I can replace those numeric codes with human-readable labels.
+
+
+
 
 ### Remember
 
