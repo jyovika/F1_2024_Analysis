@@ -195,20 +195,26 @@ combined_df <- pitstops_df %>%
 
 # making separate dfs for each year
 
-combined_2011 <- combined_df %>% filter(year == 2011)
-combined_2015 <- combined_df %>% filter(year == 2015)
-combined_2019 <- combined_df %>% filter(year == 2019)
-combined_2024 <- combined_df %>% filter(year == 2024)
+combined_2011 <- combined_df %>%
+  filter(year == 2011, milliseconds <= 50000)
 
+combined_2015 <- combined_df %>%
+  filter(year == 2015, milliseconds <= 50000)
+
+combined_2019 <- combined_df %>%
+  filter(year == 2019, milliseconds <= 50000)
+
+combined_2024 <- combined_df %>%
+  filter(year == 2024, milliseconds <= 50000)
 
 ```
 
 4. **Assumptions and Observations**
 
-    a. **Long Pit Stops as Outliers:** On inspecting the data, I noticed unusually long pit stops—some lasting up to an hour—in 2015, 2019, and 2024. These are almost certainly due to race stoppages (e.g., red flags for weather or accidents) rather than normal tire changes. Such extreme values act as outliers and will be handled accordingly in the analysis to avoid skewing results.
-    
-    b. **Filtering Outliers:** When I remove or treat extreme pit-stop durations (like the ~1-hour stops), I assume these are not genuine stops but race interruptions.
-  
+    a. **Long Pit Stops as Outliers:** Upon inspecting the data, I noticed unusually long pit stops—some lasting up to around one minute or slightly more—in 2015, 2019, and 2024. These are almost certainly due to race stoppages (e.g., red flags for weather or accidents) rather than normal tire changes. Such extreme values act as outliers and will be handled accordingly in the analysis to avoid skewing results.
+
+    b. **Filtering Outliers:** When I remove or treat these extended pit-stop durations (around 50 seconds), I assume these represent race interruptions rather than genuine tire changes.
+
     c. **Completeness of Data:** I assume the Ergast database has no missing or erroneous rows for my chosen years. Missing pit-stop records or incomplete race results could bias my findings.
     
     
