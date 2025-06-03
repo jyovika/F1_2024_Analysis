@@ -124,3 +124,34 @@ pitstops_years <- pitstops_df %>%
 print(pitstops_years)
 ```
 
+## looking and pitstop time distributions after processing
+
+```{r}
+# For 2011
+combined_2011$seconds <- combined_2011$milliseconds / 1000
+combined_2011$seconds |>
+  tidy_empirical() |>
+  tidy_autoplot() 
+
+# For 2015
+combined_2015$seconds <- combined_2015$milliseconds / 1000
+combined_2015$seconds |>
+  tidy_empirical() |>
+  tidy_autoplot() 
+
+# For 2019
+combined_2019$seconds <- combined_2019$milliseconds / 1000
+combined_2019$seconds |>
+  tidy_empirical() |>
+  tidy_autoplot() 
+
+# For 2024
+combined_2024$seconds <- combined_2024$milliseconds / 1000
+combined_2024$seconds |>
+  tidy_empirical() |>
+  tidy_autoplot()
+
+```
+
+
+
