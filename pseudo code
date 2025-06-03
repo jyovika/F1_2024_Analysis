@@ -1,0 +1,6 @@
+Pseudo code - 
+1. mutate all driverId values with real driver names.
+
+2. mutate all raceId values with actual Grand Prix names.
+
+3. Filter the combined dataset down to only the seasons 2009, 2014, 2019, and 2024.
