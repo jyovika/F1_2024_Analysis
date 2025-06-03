@@ -113,3 +113,14 @@ constructor_df <- read.csv(here::here("data/constructors.csv"))
 status_df <- read.csv(here::here("data/status.csv"))
 ```
 
+##checking when the pitstops data starts from 
+```{r}
+
+pitstops_years <- pitstops_df %>%
+  left_join(race_df %>% select(raceId, year), by = "raceId") %>%
+  distinct(year) %>%
+  arrange(year)
+
+print(pitstops_years)
+```
+
