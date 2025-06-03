@@ -1,0 +1,13 @@
+Variable ,Type,Description,Derivation,Units,Factor
+driver,Character,Full name of the driver,"the driver
+Concatenate forename + surname from drivers.csv",N/A,Names of drivers
+race ,Character,Race name plus year,Concatenate name + year from races.csv,N/A,"Names of races (e.g., ""British GP 2019"")"
+year,Character,Year the race took place,From races.csv,Year (YYYY),Numeric year values
+constructor,Character,Team or constructor name,From constructors.csv,N/A,Names of constructors
+stop,Interger,Pit stop sequence number during a race,From pit_stops.csv,Count,Positive integers starting from 1
+lap,Interger,Race lap number when pit stop occurred,From pit_stops.csv,Lap number,Positive integers
+duration,Character,Pit stop duration as string,From pit_stops.csv,Seconds (as string),"Formatted as ""XX.XXX"" OR X:XX.XXX"
+milliseconds,Interger,Pit stop duration in millisecond,From results.csv,Milliseconds,Positive integers
+positionOrder,Interger,Numeric finishing position in the race,From results.csv,Position rank,Positive integers
+grid,Interger,Starting grid position,From results.csv,Grid position,Positive integers
+status,Character,Race outcome status description,From status.csv via statusId join,N/A,"Labels like ""Finished"", ""Accident"", “Collision”, etc"
