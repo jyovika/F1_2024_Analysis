@@ -53,45 +53,90 @@ The Ergast database permits free use of its data and API strictly for personal, 
 
 - Why it’s suitable:
 
-    a. My core question hinges on “how fast was each pit stop?”—and the milliseconds column is the ground truth for that.
+  a. My core question hinges on “how fast was each pit stop?”—and the milliseconds column is the ground truth for that.
 
-    b. Because Ergast covers every Grand Prix from 2009 onward, this table gives consistent, machine-readable pit times for thousands of stops.
+  b. Because Ergast covers every Grand Prix from 2009 onward, this table gives consistent, machine-readable pit times for thousands of stops.
 
 2. **Race Results** (`results.csv`)
 
 - Why it’s suitable:
 
-    a. To answer “do faster pit stops correlate with better finishes”, I need each driver’s eventual race result— `positionOrder` gives a clean, numeric rank (1, 2, 3 …), while positionText preserves textual qualifiers (e.g. “R” for retired).
+  a. To answer “do faster pit stops correlate with better finishes”, I need each driver’s eventual race result— `positionOrder` gives a clean, numeric rank (1, 2, 3 …), while positionText preserves textual qualifiers (e.g. “R” for retired).
 
-    b. Joining on `raceId`, `driverId` allows us to link each driver’s best pit‐stop duration (from `pit_stops.csv`) with exactly where they finished.
+  b. Joining on `raceId`, `driverId` allows us to link each driver’s best pit‐stop duration (from `pit_stops.csv`) with exactly where they finished.
 
-    d. The`grid` lets me control for starting position if needed (e.g. “did a fast pit stop help someone gain more places than they started?”).
+  d. The`grid` lets me control for starting position if needed (e.g. “did a fast pit stop help someone gain more places than they started?”).
 
-    e.  statusId distinguishes DNFs (where a quick stop might not translate into a good finish) from drivers who actually crossed the line.
+  e.  statusId distinguishes DNFs (where a quick stop might not translate into a good finish) from drivers who actually crossed the line.
 
 3. **Races** (`races.csv`)
 
 - Why it’s suitable:
 
-    a. By joining on raceId, we can replace numeric IDs in pit_stops.csv and results.csv with the name (e.g. “Australian Grand Prix 2024”), making tables and plots instantly comprehensible.
+  a. By joining on raceId, we can replace numeric IDs in pit_stops.csv and results.csv with the name (e.g. “Australian Grand Prix 2024”), making tables and plots instantly comprehensible.
     
-    b. The year field lets us filter or group races by season (e.g. isolate 2009 vs. 2014 vs. 2019 vs. 2024).
+  b. The year field lets us filter or group races by season (e.g. isolate 2009 vs. 2014 vs. 2019 vs. 2024).
     
 4. **Drivers** (`drivers.csv`)
 
 - Why it’s suitable:
 
-    a. I can join on driverId to replace that numeric ID with a more readable label. For instance, create a driver_full field by concatenating forename + " " + surname (e.g. "Lewis Hamilton").
+  a. I can join on driverId to replace that numeric ID with a more readable label. For instance, create a driver_full field by concatenating forename + " " + surname (e.g. "Lewis Hamilton").
     
 5. **Constructors** (`constructors.csv`)
 
 - Why it’s suitable:
 
-    a. By joining on constructorId, I can label each pit‐stop or result row with the team name (rather than a numeric code). For example, "Red Bull Racing" vs. "McLaren".
+  a. By joining on constructorId, I can label each pit‐stop or result row with the team name (rather than a numeric code). For example, "Red Bull Racing" vs. "McLaren".
 
 6. **Status** (`status.csv`)
 
     a. In `results.csv`, each driver’s race outcome is labeled by `statusId`. Without context, statusId = 1 vs. statusId = 3 vs. statusId = 14 doesn’t tell you anything. By joining to status.csv, I can replace those numeric codes with human-readable labels.
+
+
+### 3.1 Data Limitations, Privacy and Ethics
+
+The Ergast dataset is **observational data**, comprising recorded measurements of Formula 1 race events and pit-stop durations. No experimental manipulation or intervention was performed; the data reflects real-world race conditions as they happened. While the dataset is comprehensive for official Formula 1 races during the 2009–2024 period, it is still considered a sample of the wider world of motor racing.
+
+- **Data Limitations:**
+
+  1. While pit-stop durations are accurately recorded from 2009 onward, earlier years have incomplete or missing data.
+
+  2. Some anomalies exist, such as rare outliers in pit-stop duration likely due to timing errors or race incidents, which require filtering during analysis.
+
+  3. The dataset does not capture every contextual factor influencing race outcomes (e.g., weather, team strategy, mechanical failures) that might affect the interpretation of pit-stop impact.
+
+- **Data Privacy and Ethics:**
+
+  1. The data is fully public and sourced from official timing and results published by the FIA and race organizers.
+
+  2. No personal or sensitive information about drivers or teams is included beyond publicly known facts (names, nationalities, race results).
+
+  3. Usage strictly adheres to the data provider’s terms of use, which permit free non-commercial use for research and education.
+
+### 4.1 Data Download and Processing Steps
+
+1. **Data download -**
+
+  -  I visited the Ergast database website at http://ergast.com/mrd/db/.
+
+  - On the page, I navigated to the Database Images section and scrolled down to find the CSV Database Tables download.
+
+  - I downloaded the ZIP folder containing multiple CSV files, including circuits, constructor results, constructor standings, constructors, driver standings, lap times, pit stops, qualifying, races, results, sprint results, and status—each in .csv format.
+
+  - For this project, I selected the following relevant CSV files:
+
+    - `pit_stops.csv`
+
+    - `results.csv`
+
+    - `races.csv`
+
+    - `drivers.csv`
+
+    - `status.csv`
+
+
 
 
 
