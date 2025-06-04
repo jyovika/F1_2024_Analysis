@@ -246,7 +246,9 @@ Please mention any additional files that you want the markers to review, eg. rea
 
 <!-- Task 2 Tab: Writing your blogpost -->
 
-## The Pitstop Puzzle: Speedy Tires vs. Final Position
+## Blog Post
+
+### The Pitstop Puzzle: Speedy Tires vs. Final Position
 
 Formula 1 is all about razor-thin margins, and while the drivers get most of the spotlight, I’ve always been curious about how much those lightning-fast pit stops actually influence race outcomes. As a longtime fan, I wanted to go beyond the hype and use real data to see if quick pit crews really move the needle on finishing positions—especially across different eras as the sport has evolved. This analysis is about turning instinct into insight and shining a light on an often overlooked but crucial part of the race.
 
@@ -256,59 +258,84 @@ I’m testing whether faster pit stops really boost race results by checking two
 
   2. Do they translate into more places gained from a driver’s starting grid spot?
   
-Below, I show the 2011 analysis as an example (converting milliseconds -> seconds, computing `positionGain = grid − positionOrder`, then running Pearson’s `cor.test()` on `seconds` vs. `finishing position` and `seconds` vs. `position gain`). I repeat the exact same steps for 2015, 2019, and 2024.
+Below, I show the 2011 analysis as an example (converting milliseconds → seconds, computing positionGain = grid − positionOrder, then running Pearson’s rcorr() on the three variables seconds, positionOrder, and positionGain). I repeat the exact same steps for 2015, 2019, and 2024.
 
-```{r,results='hide'}
-#using pearson correlation test for the pitstop time, net gain in position and finishing position
-combined_2011 <- combined_2011 %>%
-  mutate(
-    seconds = milliseconds / 1000,
-    positionGain = grid - positionOrder)
-#pitstop time vs finishing position
-cor.test(combined_2011$seconds, combined_2011$positionOrder, method = "pearson")
-
-#pitstop time vs places gained
-cor.test(combined_2011$seconds, combined_2011$positionGain, method = "pearson")
-```
-
-```{r, echo=FALSE, results='hide'}
-combined_2015 <- combined_2015 %>%
-  mutate(seconds = milliseconds / 1000,
-         positionGain = grid - positionOrder)
-cor.test(combined_2015$seconds, combined_2015$positionOrder, method = "pearson")
-cor.test(combined_2015$seconds, combined_2015$positionGain, method = "pearson")
-
-combined_2019 <- combined_2019 %>%
-  mutate(seconds = milliseconds / 1000,
-         positionGain = grid - positionOrder)
-cor.test(combined_2019$seconds, combined_2019$positionOrder, method = "pearson")
-cor.test(combined_2019$seconds, combined_2019$positionGain, method = "pearson")
-
-combined_2024 <- combined_2024 %>%
-  mutate(seconds = milliseconds / 1000,
-         positionGain = grid - positionOrder)
-cor.test(combined_2024$seconds, combined_2024$positionOrder, method = "pearson")
-cor.test(combined_2024$seconds, combined_2024$positionGain, method = "pearson")
-```
-
-```{r, message=FALSE}
+```{r, message=FALSE, results='hide'}
 library(Hmisc)
 
+#2011
 combined_2011 <- combined_2011 %>%
   mutate(
     seconds = milliseconds / 1000,
     positionGain = grid - positionOrder
   )
-
 data_2011 <- combined_2011 %>%
   select(seconds, positionOrder, positionGain)
 
-rcorr(as.matrix(data_2011), type = "pearson")
+rcorr(as.matrix(data_2011), type = "spearman")
+
+```
+
+```{r, echo=FALSE, results='hide'}
+#2015
+combined_2015 <- combined_2015 %>%
+  mutate(
+    seconds = milliseconds / 1000,
+    positionGain = grid - positionOrder
+  )
+data_2015 <- combined_2015 %>%
+  select(seconds, positionOrder, positionGain)
+
+rcorr(as.matrix(data_2015), type = "spearman")
+
+#2019
+combined_2019 <- combined_2019 %>%
+  mutate(
+    seconds = milliseconds / 1000,
+    positionGain = grid - positionOrder
+  )
+data_2019 <- combined_2019 %>%
+  select(seconds, positionOrder, positionGain)
+
+rcorr(as.matrix(data_2019), type = "spearman")
+
+#2024
+combined_2024 <- combined_2024 %>%
+  mutate(
+    seconds = milliseconds / 1000,
+    positionGain = grid - positionOrder
+  )
+data_2024 <- combined_2024 %>%
+  select(seconds, positionOrder, positionGain)
+
+rcorr(as.matrix(data_2024), type = "spearman")
 ```
 
 
 5.  Conclusions\
-6.  References
+#### References
+
+1. **average time lost in f1 pit stop** —Google Search., from <https://www.google.com/search?client=safari&sca_esv=f6bc877b3d7fa12d&rls=en&sxsrf=AE3TifNqc4WTWCuQtrv0RDM97OM7CGiGCg:1748850032778&q=average+time+lost+in+f1+pit+stop&spell=1&sa=X&ved=2ahUKEwjd4N-HntKNAxUOQUEAHdmZHVAQBSgAegQIDBAB&biw=1440&bih=900&dpr=2>
+
+2. **Exploring Data Distribution in R: A Comprehensive Guide** | R-bloggers., from <https://www.r-bloggers.com/2023/08/exploring-data-distribution-in-r-a-comprehensive-guide/>
+
+3. **ggplot2—What is the best plot to show a distribution in R? - Stack Overflow.**, from <https://stackoverflow.com/questions/66863301/what-is-the-best-plot-to-show-a-distribution-in-r>
+
+4. **Correlation Test Between Two Variables in R** - Easy Guides—Wiki—STHDA., from https://www.sthda.com/english/wiki/correlation-test-between-two-variables-in-r
+
+5. **Pearson Correlation Testing in R Programming.** - GeeksforGeeks. <https://www.geeksforgeeks.org/pearson-correlation-testing-in-r-programming/>
+
+6. Harrell Jr F (2025). _Hmisc: Harrell Miscellaneous_. R package version 5.2-3,
+  <https://CRAN.R-project.org/package=Hmisc>.
+  
+7. Wickham H, Averick M, Bryan J, Chang W, McGowan LD, François R, Grolemund G, Hayes A,
+  Henry L, Hester J, Kuhn M, Pedersen TL, Miller E, Bache SM, Müller K, Ooms J, Robinson
+  D, Seidel DP, Spinu V, Takahashi K, Vaughan D, Wilke C, Woo K, Yutani H (2019).
+  “Welcome to the tidyverse.” _Journal of Open Source Software_, *4*(43), 1686.
+  doi:10.21105/joss.01686 <https://doi.org/10.21105/joss.01686>.
+
+
+
 
 <!-- Task 3 Tab: Behind the Scenes -  -->
 
