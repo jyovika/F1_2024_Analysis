@@ -291,6 +291,20 @@ cor.test(combined_2024$seconds, combined_2024$positionOrder, method = "pearson")
 cor.test(combined_2024$seconds, combined_2024$positionGain, method = "pearson")
 ```
 
+```{r, message=FALSE}
+library(Hmisc)
+
+combined_2011 <- combined_2011 %>%
+  mutate(
+    seconds = milliseconds / 1000,
+    positionGain = grid - positionOrder
+  )
+
+data_2011 <- combined_2011 %>%
+  select(seconds, positionOrder, positionGain)
+
+rcorr(as.matrix(data_2011), type = "pearson")
+```
 
 
 5.  Conclusions\
