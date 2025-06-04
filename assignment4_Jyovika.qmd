@@ -250,10 +250,49 @@ Please mention any additional files that you want the markers to review, eg. rea
 
 Formula 1 is all about razor-thin margins, and while the drivers get most of the spotlight, I’ve always been curious about how much those lightning-fast pit stops actually influence race outcomes. As a longtime fan, I wanted to go beyond the hype and use real data to see if quick pit crews really move the needle on finishing positions—especially across different eras as the sport has evolved. This analysis is about turning instinct into insight and shining a light on an often overlooked but crucial part of the race.
 
+I’m testing whether faster pit stops really boost race results by checking two things for each selected year (2011, 2015, 2019, 2024):
+
+  1. Do shorter pit-stop times (in seconds) correlate with better finishing positions?
+
+  2. Do they translate into more places gained from a driver’s starting grid spot?
+  
+Below, I show the 2011 analysis as an example (converting milliseconds -> seconds, computing `positionGain = grid − positionOrder`, then running Pearson’s `cor.test()` on `seconds` vs. `finishing position` and `seconds` vs. `position gain`). I repeat the exact same steps for 2015, 2019, and 2024.
+
+```{r,results='hide'}
+#using pearson correlation test for the pitstop time, net gain in position and finishing position
+combined_2011 <- combined_2011 %>%
+  mutate(
+    seconds = milliseconds / 1000,
+    positionGain = grid - positionOrder)
+#pitstop time vs finishing position
+cor.test(combined_2011$seconds, combined_2011$positionOrder, method = "pearson")
+
+#pitstop time vs places gained
+cor.test(combined_2011$seconds, combined_2011$positionGain, method = "pearson")
+```
+
+```{r, echo=FALSE, results='hide'}
+combined_2015 <- combined_2015 %>%
+  mutate(seconds = milliseconds / 1000,
+         positionGain = grid - positionOrder)
+cor.test(combined_2015$seconds, combined_2015$positionOrder, method = "pearson")
+cor.test(combined_2015$seconds, combined_2015$positionGain, method = "pearson")
+
+combined_2019 <- combined_2019 %>%
+  mutate(seconds = milliseconds / 1000,
+         positionGain = grid - positionOrder)
+cor.test(combined_2019$seconds, combined_2019$positionOrder, method = "pearson")
+cor.test(combined_2019$seconds, combined_2019$positionGain, method = "pearson")
+
+combined_2024 <- combined_2024 %>%
+  mutate(seconds = milliseconds / 1000,
+         positionGain = grid - positionOrder)
+cor.test(combined_2024$seconds, combined_2024$positionOrder, method = "pearson")
+cor.test(combined_2024$seconds, combined_2024$positionGain, method = "pearson")
+```
 
 
-3.  Data\
-4.  Analysis\
+
 5.  Conclusions\
 6.  References
 
