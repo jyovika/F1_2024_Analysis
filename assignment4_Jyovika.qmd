@@ -258,7 +258,7 @@ I’m testing whether faster pit stops really boost race results by checking two
 
   2. Do they translate into more places gained from a driver’s starting grid spot?
   
-Below, I show the 2011 analysis as an example (converting milliseconds → seconds, computing positionGain = grid − positionOrder, then running Pearson’s rcorr() on the three variables seconds, positionOrder, and positionGain). I repeat the exact same steps for 2015, 2019, and 2024.
+Below, I show the 2011 analysis as an example (converting milliseconds → seconds, computing positionGain = grid − positionOrder, then running Spearman’s rcorr() on the three variables seconds, positionOrder, and positionGain because the Spearman rank‐order correlation coefficient is robust to the skewed distribution of pit‐stop times). I repeat the exact same steps for 2015, 2019, and 2024.
 
 ```{r, message=FALSE, results='hide'}
 library(Hmisc)
@@ -272,7 +272,9 @@ combined_2011 <- combined_2011 %>%
 data_2011 <- combined_2011 %>%
   select(seconds, positionOrder, positionGain)
 
-rcorr(as.matrix(data_2011), type = "spearman")
+data_2011 <- as.data.frame(data_2011)
+
+corr_2011 <- rcorr(as.matrix(data_2011), type = "spearman")
 
 ```
 
@@ -286,7 +288,7 @@ combined_2015 <- combined_2015 %>%
 data_2015 <- combined_2015 %>%
   select(seconds, positionOrder, positionGain)
 
-rcorr(as.matrix(data_2015), type = "spearman")
+corr_2015 <- rcorr(as.matrix(data_2015), type = "spearman")
 
 #2019
 combined_2019 <- combined_2019 %>%
@@ -297,7 +299,7 @@ combined_2019 <- combined_2019 %>%
 data_2019 <- combined_2019 %>%
   select(seconds, positionOrder, positionGain)
 
-rcorr(as.matrix(data_2019), type = "spearman")
+corr_2019 <- rcorr(as.matrix(data_2019), type = "spearman")
 
 #2024
 combined_2024 <- combined_2024 %>%
@@ -308,8 +310,88 @@ combined_2024 <- combined_2024 %>%
 data_2024 <- combined_2024 %>%
   select(seconds, positionOrder, positionGain)
 
-rcorr(as.matrix(data_2024), type = "spearman")
+corr_2024 <- rcorr(as.matrix(data_2024), type = "spearman")
 ```
+
+Visualisation 
+
+```{r}
+# 1. Custom upper‐panel function that indexes columns by name
+upper_fn <- function(data, mapping, ...) {
+  # Extract the column names as strings
+  x_name <- as_label(mapping$x)
+  y_name <- as_label(mapping$y)
+  
+  # Pull out the numeric vectors directly
+  x <- data[[x_name]]
+  y <- data[[y_name]]
+  
+  # Run Spearman correlation test
+  corr_res <- cor.test(x, y, method = "spearman", exact = FALSE)
+  rho  <- round(corr_res$estimate, 2)
+  pval <- round(corr_res$p.value,   3)
+  
+  label <- paste0("ρ = ", rho, "\n(p = ", pval, ")")
+  
+  # Create a blank ggplot and annotate at the center
+  ggplot() +
+    annotate(
+      "text",
+      x     = mean(range(x, na.rm = TRUE)),
+      y     = mean(range(y, na.rm = TRUE)),
+      label = label,
+      size  = 3.5
+    ) +
+    xlim(range(x, na.rm = TRUE)) +
+    ylim(range(y, na.rm = TRUE)) +
+    theme_void()
+}
+
+rhos_2011 <- list(
+  rho_finish = corr_2011$r["seconds", "positionOrder"],
+  p_finish   = corr_2011$P["seconds", "positionOrder"],
+  rho_gain   = corr_2011$r["seconds", "positionGain"],
+  p_gain     = corr_2011$P["seconds", "positionGain"]
+)
+
+ggpairs(
+  data_2011,
+  lower = list(continuous = "smooth"),       # scatter + LOESS in lower triangle
+  diag  = list(continuous = "densityDiag"),   # density plots on diagonal
+  upper = list(continuous = wrap(upper_fn))   # our custom Spearman ρ + p in upper
+) + ggtitle("2011: PitStop ↔ Finish / Gain")
+```
+
+
+```{r, echo=FALSE}
+rhos_2015 <- list(
+  rho_finish = corr_2015$r["seconds", "positionOrder"],
+  p_finish   = corr_2015$P["seconds", "positionOrder"],
+  rho_gain   = corr_2015$r["seconds", "positionGain"],
+  p_gain     = corr_2015$P["seconds", "positionGain"]
+)
+
+rhos_2019 <- list(
+  rho_finish = corr_2019$r["seconds", "positionOrder"],
+  p_finish   = corr_2019$P["seconds", "positionOrder"],
+  rho_gain   = corr_2019$r["seconds", "positionGain"],
+  p_gain     = corr_2019$P["seconds", "positionGain"]
+)
+
+rhos_2024 <- list(
+  rho_finish = corr_2024$r["seconds", "positionOrder"],
+  p_finish   = corr_2024$P["seconds", "positionOrder"],
+  rho_gain   = corr_2024$r["seconds", "positionGain"],
+  p_gain     = corr_2024$P["seconds", "positionGain"]
+)
+```
+
+```{r}
+
+
+```
+
+
 
 
 5.  Conclusions\
@@ -325,10 +407,16 @@ rcorr(as.matrix(data_2024), type = "spearman")
 
 5. **Pearson Correlation Testing in R Programming.** - GeeksforGeeks. <https://www.geeksforgeeks.org/pearson-correlation-testing-in-r-programming/>
 
-6. Harrell Jr F (2025). _Hmisc: Harrell Miscellaneous_. R package version 5.2-3,
+6. Holtz, Y. **Correlogram – The R graph gallery.**, from <https://r-graph-gallery.com/correlogram.html>
+
+7. **Correlation matrix with ggally** – the R Graph Gallery, from <https://r-graph-gallery.com/199-correlation-matrix-with-ggally.html>
+
+8. **GGally R package: Extension to ggplot2 for correlation matrix and survival plots** - R software and data visualization - Easy Guides - Wiki - STHDA, from <https://www.sthda.com/english/wiki/ggally-r-package-extension-to-ggplot2-for-correlation-matrix-and-survival-plots-r-software-and-data-visualization>
+
+9. Harrell Jr F (2025). _Hmisc: Harrell Miscellaneous_. R package version 5.2-3,
   <https://CRAN.R-project.org/package=Hmisc>.
   
-7. Wickham H, Averick M, Bryan J, Chang W, McGowan LD, François R, Grolemund G, Hayes A,
+10. Wickham H, Averick M, Bryan J, Chang W, McGowan LD, François R, Grolemund G, Hayes A,
   Henry L, Hester J, Kuhn M, Pedersen TL, Miller E, Bache SM, Müller K, Ooms J, Robinson
   D, Seidel DP, Spinu V, Takahashi K, Vaughan D, Wilke C, Woo K, Yutani H (2019).
   “Welcome to the tidyverse.” _Journal of Open Source Software_, *4*(43), 1686.
