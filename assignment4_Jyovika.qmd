@@ -246,18 +246,12 @@ Please mention any additional files that you want the markers to review, eg. rea
 
 <!-- Task 2 Tab: Writing your blogpost -->
 
-## Blog post
+## The Pitstop Puzzle: Speedy Tires vs. Final Position
 
-### What's in this section
+Formula 1 is all about razor-thin margins, and while the drivers get most of the spotlight, I’ve always been curious about how much those lightning-fast pit stops actually influence race outcomes. As a longtime fan, I wanted to go beyond the hype and use real data to see if quick pit crews really move the needle on finishing positions—especially across different eras as the sport has evolved. This analysis is about turning instinct into insight and shining a light on an often overlooked but crucial part of the race.
 
-Here is where you should write your blogpost! (Task 2)
 
-### Blogpost Structure
 
-There is no strict structure for you to follow. However, here is a skeleton structure you may find helpful.
-
-1.  Title (is set at the top of this document)
-2.  Motivation\
 3.  Data\
 4.  Analysis\
 5.  Conclusions\
