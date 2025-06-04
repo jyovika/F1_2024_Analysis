@@ -34,11 +34,13 @@ Do faster pitstops actually lead to better race results, or is it basically a no
 
 #### 1.3 Why I chose this question
 
-1.  **Data-Driven Rigor** As a lifelong Formula 1 enthusiast, I’ve always been fascinated by the precision and strategy behind every race—and I finally have the tools to test my assumptions. Pit-stop durations and finishing positions are publicly available in CSVs and APIs, so rather than relying on anecdote or speculation, I can analyze hard numbers to determine whether quick pit stops truly influence race outcomes.
+#### 1.3 Why I chose this question
 
-2.  **Illuminating an Underappreciated Factor** Everyone focuses on qualifying laps and engine performance, but pit-crew efficiency often feels like F1’s “secret sauce.” I’ve repeatedly wondered if those sub-23-second tire changes really move the needle on track position. By investigating this question, I hope to shed light on whether the hype around pit-crew speed is justified or if it’s overemphasized relative to other strategic elements.
+1.  **Data-Driven Rigor: ** I’m a lifelong F1 fan who’s always been fascinated by the strategy and precision behind every race. Now, with pit-stop durations and finishing positions available in public data, I can finally test my gut feelings with real numbers instead of just guessing.
 
-3. **Future-Oriented Perspective** Formula 1 evolves rapidly: regulations change, technology advances, and strategies shift from one season to the next. I’ve long been curious about whether a fast pit stop was just a 2010-era advantage or if its impact has remained significant through 2024. By examining this question across multiple seasons, I aim to determine whether pit-lane efficiency remains a decisive factor or if its margin of influence has diminished over time.
+2.  **Putting Pit Crew Speed Under the Microscope :** When I watch races, those insanely quick pit stops always catch my eye and seem like game changers. But I want to know if these fast stops are rare clutch moments or if they actually impact race outcomes consistently over many seasons. This analysis aims to figure out whether pit-crew speed really moves the needle or if it’s just hype.
+
+3. **Checking How It Holds Up Over Time** F1 is always changing—with new rules, tech, and tactics—so I’m curious whether quick pit stops mattered more back in 2010 or if they still hold the same weight in 2024. By comparing multiple seasons, I want to see if pit-stop efficiency is still a key player or if its influence has faded.
 
 #### 2.1 What data will you be using to answer that question?
 
