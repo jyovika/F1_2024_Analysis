@@ -257,12 +257,10 @@ I’m testing whether faster pit stops really boost race results by checking two
   1. Do shorter pit-stop times (in seconds) correlate with better finishing positions?
 
   2. Do they translate into more places gained from a driver’s starting grid spot?
-  
-Below, I show the 2011 analysis as an example (converting milliseconds → seconds, computing positionGain = grid − positionOrder, then running Spearman’s rcorr() on the three variables seconds, positionOrder, and positionGain because the Spearman rank‐order correlation coefficient is robust to the skewed distribution of pit‐stop times). I repeat the exact same steps for 2015, 2019, and 2024.
+
+To analyze whether faster pit stops are associated with better race outcomes, I start by converting pit-stop durations from `milliseconds` to `seconds` and calculating `positionGain` as the difference between starting grid position and finishing position (`grid` − `positionOrder`).The code below shows the process for the 2011 season. The exact same steps are repeated for the years 2015, 2019, and 2024, with those code chunks hidden for brevity.
 
 ```{r, message=FALSE, results='hide'}
-library(Hmisc)
-
 #2011
 combined_2011 <- combined_2011 %>%
   mutate(
@@ -271,11 +269,6 @@ combined_2011 <- combined_2011 %>%
   )
 data_2011 <- combined_2011 %>%
   select(seconds, positionOrder, positionGain)
-
-data_2011 <- as.data.frame(data_2011)
-
-corr_2011 <- rcorr(as.matrix(data_2011), type = "spearman")
-
 ```
 
 ```{r, echo=FALSE, results='hide'}
@@ -288,8 +281,6 @@ combined_2015 <- combined_2015 %>%
 data_2015 <- combined_2015 %>%
   select(seconds, positionOrder, positionGain)
 
-corr_2015 <- rcorr(as.matrix(data_2015), type = "spearman")
-
 #2019
 combined_2019 <- combined_2019 %>%
   mutate(
@@ -299,8 +290,6 @@ combined_2019 <- combined_2019 %>%
 data_2019 <- combined_2019 %>%
   select(seconds, positionOrder, positionGain)
 
-corr_2019 <- rcorr(as.matrix(data_2019), type = "spearman")
-
 #2024
 combined_2024 <- combined_2024 %>%
   mutate(
@@ -309,31 +298,40 @@ combined_2024 <- combined_2024 %>%
   )
 data_2024 <- combined_2024 %>%
   select(seconds, positionOrder, positionGain)
-
-corr_2024 <- rcorr(as.matrix(data_2024), type = "spearman")
 ```
 
-Visualisation 
+I then run Spearman’s rank-order correlation test (`rcorr()` from the Hmisc package) on the three key variables — pit-stop time (`seconds`), finishing position (`positionOrder`), and net places gained (`positionGain`). I use Spearman’s correlation because pit-stop times are skewed and non-normally distributed, and Spearman’s method is robust to this.
 
-```{r}
-# 1. Custom upper‐panel function that indexes columns by name
+I fully demonstrate the process for the 2011 season data. For 2015, 2019, and 2024, I follow the exact same procedure but keep the code hidden for brevity.
+
+For visualization, I use the `ggpairs()` function from the GGally package to produce a matrix of plots for each year. This matrix includes:
+
+  1. Density plots on the diagonal to show the distribution of each variable.
+
+  2. Scatterplots with LOESS smoothing in the lower triangle to visualize relationships.
+
+  3. Custom upper panels showing Spearman’s correlation coefficient (ρ) and p-value for each variable pair, annotated directly on the plot.
+
+This combination offers both visual and statistical insight into how pit-stop speed relates to finishing positions and position gains, helping to paint a clear picture of the impact across different F1 seasons.
+
+```{r, message=FALSE, fig.show='hide'}
+library(Hmisc)
+library(rlang)
+library(GGally)
 upper_fn <- function(data, mapping, ...) {
-  # Extract the column names as strings
-  x_name <- as_label(mapping$x)
+
+    x_name <- as_label(mapping$x)
   y_name <- as_label(mapping$y)
-  
-  # Pull out the numeric vectors directly
+
   x <- data[[x_name]]
   y <- data[[y_name]]
-  
-  # Run Spearman correlation test
-  corr_res <- cor.test(x, y, method = "spearman", exact = FALSE)
-  rho  <- round(corr_res$estimate, 2)
-  pval <- round(corr_res$p.value,   3)
-  
+
+  rc <- rcorr(cbind(x, y), type = "spearman")
+  rho  <- round(rc$r[1, 2], 2)
+  pval <- round(rc$P[1, 2], 3)
+
   label <- paste0("ρ = ", rho, "\n(p = ", pval, ")")
-  
-  # Create a blank ggplot and annotate at the center
+
   ggplot() +
     annotate(
       "text",
@@ -347,81 +345,97 @@ upper_fn <- function(data, mapping, ...) {
     theme_void()
 }
 
-rhos_2011 <- list(
-  rho_finish = corr_2011$r["seconds", "positionOrder"],
-  p_finish   = corr_2011$P["seconds", "positionOrder"],
-  rho_gain   = corr_2011$r["seconds", "positionGain"],
-  p_gain     = corr_2011$P["seconds", "positionGain"]
-)
-
-ggpairs(
+p1<- ggpairs(
   data_2011,
-  lower = list(continuous = "smooth"),       # scatter + LOESS in lower triangle
-  diag  = list(continuous = "densityDiag"),   # density plots on diagonal
-  upper = list(continuous = wrap(upper_fn))   # our custom Spearman ρ + p in upper
-) + ggtitle("2011: PitStop ↔ Finish / Gain")
+  lower = list(continuous = "smooth"),       
+  diag  = list(continuous = "densityDiag"),   
+  upper = list(continuous = wrap(upper_fn))   
+) + ggtitle("2015: PitStop ↔ Finish / Gain")
 ```
-
 
 ```{r, echo=FALSE}
-rhos_2015 <- list(
-  rho_finish = corr_2015$r["seconds", "positionOrder"],
-  p_finish   = corr_2015$P["seconds", "positionOrder"],
-  rho_gain   = corr_2015$r["seconds", "positionGain"],
-  p_gain     = corr_2015$P["seconds", "positionGain"]
-)
+p2<- ggpairs(
+  data_2015,
+  lower = list(continuous = "smooth"),       
+  diag  = list(continuous = "densityDiag"),   
+  upper = list(continuous = wrap(upper_fn))   
+) + ggtitle("2015: PitStop ↔ Finish / Gain")
 
-rhos_2019 <- list(
-  rho_finish = corr_2019$r["seconds", "positionOrder"],
-  p_finish   = corr_2019$P["seconds", "positionOrder"],
-  rho_gain   = corr_2019$r["seconds", "positionGain"],
-  p_gain     = corr_2019$P["seconds", "positionGain"]
-)
 
-rhos_2024 <- list(
-  rho_finish = corr_2024$r["seconds", "positionOrder"],
-  p_finish   = corr_2024$P["seconds", "positionOrder"],
-  rho_gain   = corr_2024$r["seconds", "positionGain"],
-  p_gain     = corr_2024$P["seconds", "positionGain"]
-)
+p3<- ggpairs(
+  data_2019,
+  lower = list(continuous = "smooth"),       
+  diag  = list(continuous = "densityDiag"),   
+  upper = list(continuous = wrap(upper_fn))   
+) + ggtitle("2019: PitStop ↔ Finish / Gain")
+
+
+p4<- ggpairs(
+  data_2024,
+  lower = list(continuous = "smooth"),       
+  diag  = list(continuous = "densityDiag"),   
+  upper = list(continuous = wrap(upper_fn))   
+) + ggtitle("2024: PitStop ↔ Finish / Gain")
 ```
 
-```{r}
+Finally, I use the cowplot package to arrange the four ggpairs() plots—one for each year—into a clean 2×2 grid for easy side-by-side comparison:
 
+```{r, message=FALSE}
+library(cowplot)
+
+plot_grid(
+   ggmatrix_gtable(p1),
+   ggmatrix_gtable(p2),
+   ggmatrix_gtable(p3),
+   ggmatrix_gtable(p4),
+   nrow = 2)
 
 ```
-
 
 
 
 5.  Conclusions\
+
 #### References
 
-1. **average time lost in f1 pit stop** —Google Search., from <https://www.google.com/search?client=safari&sca_esv=f6bc877b3d7fa12d&rls=en&sxsrf=AE3TifNqc4WTWCuQtrv0RDM97OM7CGiGCg:1748850032778&q=average+time+lost+in+f1+pit+stop&spell=1&sa=X&ved=2ahUKEwjd4N-HntKNAxUOQUEAHdmZHVAQBSgAegQIDBAB&biw=1440&bih=900&dpr=2>
+1. *average time lost in f1 pit stop* —Google Search., from <https://www.google.com/search?client=safari&sca_esv=f6bc877b3d7fa12d&rls=en&sxsrf=AE3TifNqc4WTWCuQtrv0RDM97OM7CGiGCg:1748850032778&q=average+time+lost+in+f1+pit+stop&spell=1&sa=X&ved=2ahUKEwjd4N-HntKNAxUOQUEAHdmZHVAQBSgAegQIDBAB&biw=1440&bih=900&dpr=2>
 
-2. **Exploring Data Distribution in R: A Comprehensive Guide** | R-bloggers., from <https://www.r-bloggers.com/2023/08/exploring-data-distribution-in-r-a-comprehensive-guide/>
+2. *Exploring Data Distribution in R: A Comprehensive Guide* | R-bloggers., from <https://www.r-bloggers.com/2023/08/exploring-data-distribution-in-r-a-comprehensive-guide/>
 
-3. **ggplot2—What is the best plot to show a distribution in R? - Stack Overflow.**, from <https://stackoverflow.com/questions/66863301/what-is-the-best-plot-to-show-a-distribution-in-r>
+3. *ggplot2—What is the best plot to show a distribution in R? - Stack Overflow.*, from <https://stackoverflow.com/questions/66863301/what-is-the-best-plot-to-show-a-distribution-in-r>
 
-4. **Correlation Test Between Two Variables in R** - Easy Guides—Wiki—STHDA., from https://www.sthda.com/english/wiki/correlation-test-between-two-variables-in-r
+4. *Correlation Test Between Two Variables in R* - Easy Guides—Wiki—STHDA., from <https://www.sthda.com/english/wiki/correlation-test-between-two-variables-in-r>
 
-5. **Pearson Correlation Testing in R Programming.** - GeeksforGeeks. <https://www.geeksforgeeks.org/pearson-correlation-testing-in-r-programming/>
+5. *Pearson Correlation Testing in R Programming.* - GeeksforGeeks. <https://www.geeksforgeeks.org/pearson-correlation-testing-in-r-programming/>
 
-6. Holtz, Y. **Correlogram – The R graph gallery.**, from <https://r-graph-gallery.com/correlogram.html>
+6. Holtz, Y. *Correlogram – The R graph gallery.*, from <https://r-graph-gallery.com/correlogram.html>
 
-7. **Correlation matrix with ggally** – the R Graph Gallery, from <https://r-graph-gallery.com/199-correlation-matrix-with-ggally.html>
+7. *Correlation matrix with ggally* – the R Graph Gallery, from <https://r-graph-gallery.com/199-correlation-matrix-with-ggally.html>
 
-8. **GGally R package: Extension to ggplot2 for correlation matrix and survival plots** - R software and data visualization - Easy Guides - Wiki - STHDA, from <https://www.sthda.com/english/wiki/ggally-r-package-extension-to-ggplot2-for-correlation-matrix-and-survival-plots-r-software-and-data-visualization>
+8. *GGally R package: Extension to ggplot2 for correlation matrix and survival plots* - R software and data visualization - Easy Guides - Wiki - STHDA, from <https://www.sthda.com/english/wiki/ggally-r-package-extension-to-ggplot2-for-correlation-matrix-and-survival-plots-r-software-and-data-visualization>
 
-9. Harrell Jr F (2025). _Hmisc: Harrell Miscellaneous_. R package version 5.2-3,
+9. *Having many ggpairs plots side-by-side in a grid?* · Issue #256 · ggobi/ggally. GitHub. from <https://github.com/ggobi/ggally/issues/256>
+
+10. ChriiSchee. (2021, June 1). *Answer to “Arranging GGally plots with gridExtra?”* [Online post]. Stack Overflow.<https://stackoverflow.com/a/67787061>
+
+11. Harrell Jr F (2025). _Hmisc: Harrell Miscellaneous_. R package version 5.2-3,
   <https://CRAN.R-project.org/package=Hmisc>.
   
-10. Wickham H, Averick M, Bryan J, Chang W, McGowan LD, François R, Grolemund G, Hayes A,
+12. Wickham H, Averick M, Bryan J, Chang W, McGowan LD, François R, Grolemund G, Hayes A,
   Henry L, Hester J, Kuhn M, Pedersen TL, Miller E, Bache SM, Müller K, Ooms J, Robinson
   D, Seidel DP, Spinu V, Takahashi K, Vaughan D, Wilke C, Woo K, Yutani H (2019).
   “Welcome to the tidyverse.” _Journal of Open Source Software_, *4*(43), 1686.
   doi:10.21105/joss.01686 <https://doi.org/10.21105/joss.01686>.
+  
+13.  Wilke C (2024). _cowplot: Streamlined Plot Theme and Plot Annotations for 'ggplot2'_. R
+  package version 1.1.3, <https://CRAN.R-project.org/package=cowplot>.
 
+14. Schloerke B, Cook D, Larmarange J, Briatte F, Marbach M, Thoen E, Elberg A, Crowley J
+  (2024). _GGally: Extension to 'ggplot2'_. R package version 2.2.1,
+  <https://CRAN.R-project.org/package=GGally>.
+  
+15. Henry L, Wickham H (2024). *_rlang: Functions for Base Types and Core R* and 'Tidyverse'
+  Features_. R package version 1.1.4, <https://CRAN.R-project.org/package=rlang>.
 
 
 
