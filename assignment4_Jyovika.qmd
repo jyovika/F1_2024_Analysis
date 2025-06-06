@@ -233,29 +233,30 @@ combined_2024 <- combined_df %>%
 **Step 4:** Define Team Color Palette
 
 To ensure each team is plotted with a consistent, recognizable color, create a named vector mapping every team name to its corresponding hexadecimal code.
+
 ```{r}
 team_colors <- c(
-  "Red Bull"       = "#1E2C6F",  
-  "Mercedes"       = "#00A19C",  
-  "Ferrari"        = "#FF0000",  
-  "McLaren"        = "#FF8C00",  
-  "Williams"       = "#005AFF",  
-  "Alpine"         = "#FF69B4",
-  "Renault"        = "#FFF500",
-  "Lotus"          = "#B6995B", 
-  "Lotus F1"       = "#B6995B",
-  "Aston Martin"   = "#006400",
-  "Racing Point"   = "#EC0374",
-  "Force India"    = "#F27836",
-  "AlphaTauri"     = "#2B4562", 
-  "Toro Rosso"     = "#00144A",
-  "Alfa Romeo"     = "#B22222",  
-  "Haas"           = "#A9A9A9", 
-  "HRT"            = "#FFE4B5", 
-  "Sauber"         = "#52E252",
-  "Manor Marussia" = "#0000FF",
-  "Virgin"         = "#E4181E",
-  "OtherTeam"      = "#D3D3D3"   
+  "Red Bull"       = "#5F6F8F", 
+  "Mercedes"       = "#66B4AD",  
+  "Ferrari"        = "#D9534F", 
+  "McLaren"        = "#D18C4F",  
+  "Williams"       = "#7F8CFF",  
+  "Alpine"         = "#FF9FC1", 
+  "Renault"        = "#FFF98C",  
+  "Lotus"          = "#C0A87B",  
+  "Lotus F1"       = "#C0A87B",  
+  "Aston Martin"   = "#4C8C44", 
+  "Racing Point"   = "#E6859E",  
+  "Force India"    = "#E0997E", 
+  "AlphaTauri"     = "#6E7A8C", 
+  "Toro Rosso"     = "#4F5F7C",  
+  "Alfa Romeo"     = "#C05F5F",  
+  "Haas"           = "#BFBFBF",  
+  "HRT"            = "#FFEAD1",  
+  "Sauber"         = "#82D282",  
+  "Manor Marussia" = "#7F7FFF",  
+  "Virgin"         = "#D46F6F",  
+  "OtherTeam"      = "#E0E0E0"   
 )
 ```
 
