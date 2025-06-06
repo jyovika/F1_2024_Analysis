@@ -230,6 +230,34 @@ combined_2024 <- combined_df %>%
   filter(year == 2024, milliseconds <= 50000)
 
 ```
+**Step 4:** Define Team Color Palette
+
+To ensure each team is plotted with a consistent, recognizable color, create a named vector mapping every team name to its corresponding hexadecimal code.
+```{r}
+team_colors <- c(
+  "Red Bull"       = "#1E2C6F",  
+  "Mercedes"       = "#00A19C",  
+  "Ferrari"        = "#FF0000",  
+  "McLaren"        = "#FF8C00",  
+  "Williams"       = "#005AFF",  
+  "Alpine"         = "#FF69B4",
+  "Renault"        = "#FFF500",
+  "Lotus"          = "#B6995B", 
+  "Lotus F1"       = "#B6995B",
+  "Aston Martin"   = "#006400",
+  "Racing Point"   = "#EC0374",
+  "Force India"    = "#F27836",
+  "AlphaTauri"     = "#2B4562", 
+  "Toro Rosso"     = "#00144A",
+  "Alfa Romeo"     = "#B22222",  
+  "Haas"           = "#A9A9A9", 
+  "HRT"            = "#FFE4B5", 
+  "Sauber"         = "#52E252",
+  "Manor Marussia" = "#0000FF",
+  "Virgin"         = "#E4181E",
+  "OtherTeam"      = "#D3D3D3"   
+)
+```
 
 4. **Assumptions and Observations**
 
