@@ -392,6 +392,21 @@ plot_grid(
 
 ```
 
+Here’s the lowdown on these plots for 2011, 2015, 2019, and 2024. Each grid shows how pit-stop time, finishing position, and places gained relate to each other.
+
+On the diagonals, you see density curves for each variable — so you get a feel for how pit-stop times and race results are spread out in each year.
+
+Down below the diagonal are scatterplots with smooth LOESS lines that show trends between variables:
+
+  1. **For pit-stop time vs. finishing position**, the LOESS line slopes up every year — meaning slower pit stops usually go with worse finishing spots. So yeah, faster stops do tend to help you finish higher.
+
+  2. **For pit-stop time vs. position gains**, the line’s pretty flat in most years. Back in 2011, there’s a tiny hint that quick stops helped you gain places on the track, but after that? Not much at all. Pit-stop speed doesn’t seem to guarantee overtakes anymore.
+
+  3. **For finishing position vs. places gained**, the LOESS line slopes down, which makes sense — drivers who finish better usually gained more places during the race.
+
+  4. Up top, you also see Spearman’s ρ and p-values — the numbers that back up what the lines are telling us statistically.
+
+
 
 
 5.  Conclusions\
