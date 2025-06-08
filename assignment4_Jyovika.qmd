@@ -237,6 +237,7 @@ combined_2024 <- combined_df %>%
 
     c. **Completeness of Data:** I assume the Ergast database has no missing or erroneous rows for my chosen years. Missing pit-stop records or incomplete race results could bias my findings.
     
+
     
 
 
@@ -406,6 +407,105 @@ Down below the diagonal are scatterplots with smooth LOESS lines that show trend
 
   4. Up top, you also see Spearman’s ρ and p-values — the numbers that back up what the lines are telling us statistically.
 
+```{r}
+# 2011
+median_2011 <- combined_2011 %>%
+  group_by(constructor) %>%
+  summarise(
+    median_sec = median(seconds, na.rm = TRUE),
+    count = n()
+  ) %>%
+  arrange(median_sec)
+
+# 2011 Plot
+m1<- ggplot(median_2011, 
+       aes(x = reorder(constructor, median_sec), 
+           y = median_sec, 
+           fill = constructor)) +
+  geom_col(width = 0.8) +
+  scale_fill_manual(values = team_colors_toned) +
+  coord_flip() +
+  labs(
+    title    = "2011: Median Pit-Stop Time by Constructor",
+    x        = "Constructor",
+    y        = "Median Pit‐Stop Time (seconds)"
+  ) +
+  theme_minimal()
+```
+
+```{r, echo=FALSE}
+# 2015
+median_2015 <- combined_2015 %>%
+  group_by(constructor) %>%
+  summarise(
+    median_sec = median(seconds, na.rm = TRUE),
+    count = n()
+  ) %>%
+  arrange(median_sec)
+
+# 2015 Plot
+m2<- ggplot(median_2015, 
+       aes(x = reorder(constructor, median_sec), 
+           y = median_sec, 
+           fill = constructor)) +
+  geom_col(width = 0.8) +
+  scale_fill_manual(values = team_colors_toned) +
+  coord_flip() +
+  labs(
+    title    = "2015: Median Pit-Stop Time by Constructor",
+    x        = "Constructor",
+    y        = "Median Pit‐Stop Time (seconds)"
+  ) +
+  theme_minimal()
+
+# 2019
+median_2019 <- combined_2019 %>%
+  group_by(constructor) %>%
+  summarise(
+    median_sec = median(seconds, na.rm = TRUE),
+    count = n()
+  ) %>%
+  arrange(median_sec)
+
+# 2019 Plot
+m3<- ggplot(median_2019, 
+       aes(x = reorder(constructor, median_sec), 
+           y = median_sec, 
+           fill = constructor)) +
+  geom_col(width = 0.8) +
+  scale_fill_manual(values = team_colors_toned) +
+  coord_flip() +
+  labs(
+    title    = "2019: Median Pit-Stop Time by Constructor",
+    x        = "Constructor",
+    y        = "Median Pit‐Stop Time (seconds)"
+  ) +
+  theme_minimal()
+
+# 2024
+median_2024 <- combined_2024 %>%
+  group_by(constructor) %>%
+  summarise(
+    median_sec = median(seconds, na.rm = TRUE),
+    count = n()
+  ) %>%
+  arrange(median_sec)
+
+# 2024 Plot
+m4<- ggplot(median_2024, 
+       aes(x = reorder(constructor, median_sec), 
+           y = median_sec, 
+           fill = constructor)) +
+  geom_col(width = 0.8) +
+  scale_fill_manual(values = team_colors_toned) +
+  coord_flip() +
+  labs(
+    title    = "2024: Median Pit-Stop Time by Constructor",
+    x        = "Constructor",
+    y        = "Median Pit‐Stop Time (seconds)"
+  ) +
+  theme_minimal()
+```
 
 
 
