@@ -416,21 +416,6 @@ median_2011 <- combined_2011 %>%
     count = n()
   ) %>%
   arrange(median_sec)
-
-# 2011 Plot
-m1<- ggplot(median_2011, 
-       aes(x = reorder(constructor, median_sec), 
-           y = median_sec, 
-           fill = constructor)) +
-  geom_col(width = 0.8) +
-  scale_fill_manual(values = team_colors_toned) +
-  coord_flip() +
-  labs(
-    title    = "2011: Median Pit-Stop Time by Constructor",
-    x        = "Constructor",
-    y        = "Median Pit‐Stop Time (seconds)"
-  ) +
-  theme_minimal()
 ```
 
 ```{r, echo=FALSE}
@@ -443,21 +428,6 @@ median_2015 <- combined_2015 %>%
   ) %>%
   arrange(median_sec)
 
-# 2015 Plot
-m2<- ggplot(median_2015, 
-       aes(x = reorder(constructor, median_sec), 
-           y = median_sec, 
-           fill = constructor)) +
-  geom_col(width = 0.8) +
-  scale_fill_manual(values = team_colors_toned) +
-  coord_flip() +
-  labs(
-    title    = "2015: Median Pit-Stop Time by Constructor",
-    x        = "Constructor",
-    y        = "Median Pit‐Stop Time (seconds)"
-  ) +
-  theme_minimal()
-
 # 2019
 median_2019 <- combined_2019 %>%
   group_by(constructor) %>%
@@ -466,21 +436,6 @@ median_2019 <- combined_2019 %>%
     count = n()
   ) %>%
   arrange(median_sec)
-
-# 2019 Plot
-m3<- ggplot(median_2019, 
-       aes(x = reorder(constructor, median_sec), 
-           y = median_sec, 
-           fill = constructor)) +
-  geom_col(width = 0.8) +
-  scale_fill_manual(values = team_colors_toned) +
-  coord_flip() +
-  labs(
-    title    = "2019: Median Pit-Stop Time by Constructor",
-    x        = "Constructor",
-    y        = "Median Pit‐Stop Time (seconds)"
-  ) +
-  theme_minimal()
 
 # 2024
 median_2024 <- combined_2024 %>%
@@ -491,20 +446,32 @@ median_2024 <- combined_2024 %>%
   ) %>%
   arrange(median_sec)
 
-# 2024 Plot
-m4<- ggplot(median_2024, 
-       aes(x = reorder(constructor, median_sec), 
-           y = median_sec, 
-           fill = constructor)) +
-  geom_col(width = 0.8) +
-  scale_fill_manual(values = team_colors_toned) +
+```
+
+```{r}
+median_all_years <- bind_rows(
+  median_2011 %>% mutate(year = 2011),
+  median_2015 %>% mutate(year = 2015),
+  median_2019 %>% mutate(year = 2019),
+  median_2024 %>% mutate(year = 2024)
+)
+
+ggplot(median_all_years, 
+       aes(
+         x    = reorder(constructor, median_sec), 
+         y    = median_sec, 
+         fill = constructor
+       )) +
+  geom_col() +
+  scale_fill_manual(values = team_colors) +
+  facet_wrap(~ year, ncol = 2, scales = "free_y") +
   coord_flip() +
   labs(
-    title    = "2024: Median Pit-Stop Time by Constructor",
-    x        = "Constructor",
-    y        = "Median Pit‐Stop Time (seconds)"
+    x = "Constructor",
+    y = "Median Pit-Stop Time (s)"
   ) +
-  theme_minimal()
+    theme_minimal() +
+  theme(legend.position = "none")
 ```
 
 
