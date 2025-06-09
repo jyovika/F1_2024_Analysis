@@ -268,6 +268,7 @@ team_colors <- c(
 
     c. **Completeness of Data:** I assume the Ergast database has no missing or erroneous rows for my chosen years. Missing pit-stop records or incomplete race results could bias my findings.
     
+
     
 
 
@@ -277,22 +278,302 @@ Please mention any additional files that you want the markers to review, eg. rea
 
 <!-- Task 2 Tab: Writing your blogpost -->
 
-## Blog post
+## Blog Post
 
-### What's in this section
+### The Pitstop Puzzle: Speedy Tires vs. Final Position
 
-Here is where you should write your blogpost! (Task 2)
+Formula 1 is all about razor-thin margins, and while the drivers get most of the spotlight, I’ve always been curious about how much those lightning-fast pit stops actually influence race outcomes. As a longtime fan, I wanted to go beyond the hype and use real data to see if quick pit crews really move the needle on finishing positions—especially across different eras as the sport has evolved. This analysis is about turning instinct into insight and shining a light on an often overlooked but crucial part of the race.
 
-### Blogpost Structure
+I’m testing whether faster pit stops really boost race results by checking two things for each selected year (2011, 2015, 2019, 2024):
 
-There is no strict structure for you to follow. However, here is a skeleton structure you may find helpful.
+  1. Do shorter pit-stop times (in seconds) correlate with better finishing positions?
 
-1.  Title (is set at the top of this document)
-2.  Motivation\
-3.  Data\
-4.  Analysis\
-5.  Conclusions\
-6.  References
+  2. Do they translate into more places gained from a driver’s starting grid spot?
+
+To analyze whether faster pit stops are associated with better race outcomes, I start by converting pit-stop durations from `milliseconds` to `seconds` and calculating `positionGain` as the difference between starting grid position and finishing position (`grid` − `positionOrder`).The code below shows the process for the 2011 season. The exact same steps are repeated for the years 2015, 2019, and 2024, with those code chunks hidden for brevity.
+
+```{r, message=FALSE, results='hide'}
+#2011
+combined_2011 <- combined_2011 %>%
+  mutate(
+    seconds = milliseconds / 1000,
+    positionGain = grid - positionOrder
+  )
+data_2011 <- combined_2011 %>%
+  select(seconds, positionOrder, positionGain)
+```
+
+```{r, echo=FALSE, results='hide'}
+#2015
+combined_2015 <- combined_2015 %>%
+  mutate(
+    seconds = milliseconds / 1000,
+    positionGain = grid - positionOrder
+  )
+data_2015 <- combined_2015 %>%
+  select(seconds, positionOrder, positionGain)
+
+#2019
+combined_2019 <- combined_2019 %>%
+  mutate(
+    seconds = milliseconds / 1000,
+    positionGain = grid - positionOrder
+  )
+data_2019 <- combined_2019 %>%
+  select(seconds, positionOrder, positionGain)
+
+#2024
+combined_2024 <- combined_2024 %>%
+  mutate(
+    seconds = milliseconds / 1000,
+    positionGain = grid - positionOrder
+  )
+data_2024 <- combined_2024 %>%
+  select(seconds, positionOrder, positionGain)
+```
+
+I then run Spearman’s rank-order correlation test (`rcorr()` from the Hmisc package) on the three key variables — pit-stop time (`seconds`), finishing position (`positionOrder`), and net places gained (`positionGain`). I use Spearman’s correlation because pit-stop times are skewed and non-normally distributed, and Spearman’s method is robust to this.
+
+I fully demonstrate the process for the 2011 season data. For 2015, 2019, and 2024, I follow the exact same procedure but keep the code hidden for brevity.
+
+For visualization, I use the `ggpairs()` function from the GGally package to produce a matrix of plots for each year. This matrix includes:
+
+  1. Density plots on the diagonal to show the distribution of each variable.
+
+  2. Scatterplots with LOESS smoothing in the lower triangle to visualize relationships.
+
+  3. Custom upper panels showing Spearman’s correlation coefficient (ρ) and p-value for each variable pair, annotated directly on the plot.
+
+This combination offers both visual and statistical insight into how pit-stop speed relates to finishing positions and position gains, helping to paint a clear picture of the impact across different F1 seasons.
+
+```{r, message=FALSE, fig.show='hide'}
+library(Hmisc)
+library(rlang)
+library(GGally)
+upper_fn <- function(data, mapping, ...) {
+
+    x_name <- as_label(mapping$x)
+  y_name <- as_label(mapping$y)
+
+  x <- data[[x_name]]
+  y <- data[[y_name]]
+
+  rc <- rcorr(cbind(x, y), type = "spearman")
+  rho  <- round(rc$r[1, 2], 2)
+  pval <- round(rc$P[1, 2], 3)
+
+  label <- paste0("ρ = ", rho, "\n(p = ", pval, ")")
+
+  ggplot() +
+    annotate(
+      "text",
+      x     = mean(range(x, na.rm = TRUE)),
+      y     = mean(range(y, na.rm = TRUE)),
+      label = label,
+      size  = 3.5
+    ) +
+    xlim(range(x, na.rm = TRUE)) +
+    ylim(range(y, na.rm = TRUE)) +
+    theme_void()
+}
+
+p1<- ggpairs(
+  data_2011,
+  lower = list(continuous = "smooth"),       
+  diag  = list(continuous = "densityDiag"),   
+  upper = list(continuous = wrap(upper_fn))   
+) + ggtitle("2015: PitStop ↔ Finish / Gain")
+```
+
+```{r, echo=FALSE}
+p2<- ggpairs(
+  data_2015,
+  lower = list(continuous = "smooth"),       
+  diag  = list(continuous = "densityDiag"),   
+  upper = list(continuous = wrap(upper_fn))   
+) + ggtitle("2015: PitStop ↔ Finish / Gain")
+
+
+p3<- ggpairs(
+  data_2019,
+  lower = list(continuous = "smooth"),       
+  diag  = list(continuous = "densityDiag"),   
+  upper = list(continuous = wrap(upper_fn))   
+) + ggtitle("2019: PitStop ↔ Finish / Gain")
+
+
+p4<- ggpairs(
+  data_2024,
+  lower = list(continuous = "smooth"),       
+  diag  = list(continuous = "densityDiag"),   
+  upper = list(continuous = wrap(upper_fn))   
+) + ggtitle("2024: PitStop ↔ Finish / Gain")
+```
+
+Finally, I use the cowplot package to arrange the four ggpairs() plots—one for each year—into a clean 2×2 grid for easy side-by-side comparison:
+
+```{r, message=FALSE}
+library(cowplot)
+
+plot_grid(
+   ggmatrix_gtable(p1),
+   ggmatrix_gtable(p2),
+   ggmatrix_gtable(p3),
+   ggmatrix_gtable(p4),
+   nrow = 2)
+
+```
+
+Here’s the lowdown on these plots for 2011, 2015, 2019, and 2024. Each grid shows how pit-stop time, finishing position, and places gained relate to each other.
+
+On the diagonals, you see density curves for each variable — so you get a feel for how pit-stop times and race results are spread out in each year.
+
+Down below the diagonal are scatterplots with smooth LOESS lines that show trends between variables:
+
+  1. **For pit-stop time vs. finishing position**, the LOESS line slopes up every year — meaning slower pit stops usually go with worse finishing spots. So yeah, faster stops do tend to help you finish higher.
+
+  2. **For pit-stop time vs. position gains**, the line’s pretty flat in most years. Back in 2011, there’s a tiny hint that quick stops helped you gain places on the track, but after that? Not much at all. Pit-stop speed doesn’t seem to guarantee overtakes anymore.
+
+  3. **For finishing position vs. places gained**, the LOESS line slopes down, which makes sense — drivers who finish better usually gained more places during the race.
+
+  4. Up top, you also see Spearman’s ρ and p-values — the numbers that back up what the lines are telling us statistically.
+
+**Calculating Median Pit-Stop Times by Constructor**
+
+To get a sense of each team’s typical pit-stop speed, I start by taking the raw combined_<year> data and, for 2011, do:
+```{r}
+# 2011
+median_2011 <- combined_2011 %>%
+  group_by(constructor) %>%
+  summarise(
+    median_sec = median(seconds, na.rm = TRUE),
+    count = n()
+  ) %>%
+  arrange(median_sec)
+```
+
+– This groups all stops by `constructor`, computes the *median* of `seconds` (dropping any NAs), and also counts how many stops each team made, then sorts from fastest median to slowest.
+
+– I repeat the exact same steps for 2015, 2019 and 2024, saving those into`median_2015`, `median_2019` and `median_2024`.
+
+```{r, echo=FALSE}
+# 2015
+median_2015 <- combined_2015 %>%
+  group_by(constructor) %>%
+  summarise(
+    median_sec = median(seconds, na.rm = TRUE),
+    count = n()
+  ) %>%
+  arrange(median_sec)
+
+# 2019
+median_2019 <- combined_2019 %>%
+  group_by(constructor) %>%
+  summarise(
+    median_sec = median(seconds, na.rm = TRUE),
+    count = n()
+  ) %>%
+  arrange(median_sec)
+
+# 2024
+median_2024 <- combined_2024 %>%
+  group_by(constructor) %>%
+  summarise(
+    median_sec = median(seconds, na.rm = TRUE),
+    count = n()
+  ) %>%
+  arrange(median_sec)
+```
+
+Once I’ve got one tidy table of medians per constructor for each season, I stack them together and give each row a year tag:
+```{r}
+median_all_years <- bind_rows(
+  median_2011 %>% mutate(year = 2011),
+  median_2015 %>% mutate(year = 2015),
+  median_2019 %>% mutate(year = 2019),
+  median_2024 %>% mutate(year = 2024)
+)
+```
+
+Finally, I use a single `ggplot()` call with `facet_wrap(~ year)` to draw all four bar-charts side by side:
+```{r}
+ggplot(median_all_years, 
+       aes(
+         x    = reorder(constructor, median_sec), 
+         y    = median_sec, 
+         fill = constructor
+       )) +
+  geom_col() +
+  scale_fill_manual(values = team_colors) +
+  facet_wrap(~ year, ncol = 2, scales = "free_y") +
+  coord_flip() +
+  labs(
+    x = "Constructor",
+    y = "Median Pit-Stop Time (s)"
+  ) +
+    theme_minimal() +
+  theme(legend.position = "none")
+```
+- **2011** felt a bit like back-of-the-grid chaos—HRT was lumbering through stops at almost 24 s, while Mercedes and Red Bull were already humming in the low 21 s. A nearly 3 s gap between first and last made it feel like pit-stop practice was still “caught someone napping” territory.
+
+- **2015** turned the screws: Manor Marussia couldn’t crack 26 s, but Mercedes was flirting with 22 s, and the spread ballooned to 4 s—teams either nailed it or totally blew it.
+
+- By **2019** the pack had pulled itself together—Alfa Romeo was at the back around 24 s, but most squads were squeezed into a 2 s window (mid-22s), so a stray glove or misplaced wheel gun could cost you more places than the car ahead.
+
+- Fast-forward to **2024**, and it’s pure surgical precision: even the slowest stop (Sauber, ~23.5 s) is only about 1.5 s off the leaders. Mercedes and Red Bull still own the top step, but everyone’s lurking within a few tenths—pit crews have basically become pit ninjas.
+
+- Pulling all this together, a few big takeaways stand out:
+
+  1. **Pit-stop speed still matters…** every year shows a clear negative Spearman correlation between stop time and finishing position—so faster stops tend to land you further up the grid (ρs in the 0.3–0.6 range, all p < .01).
+
+  2. **…but its superpower has dimmed.** Early in the decade (2011) quicker stops even translated into extra places gained on average. By 2015 and beyond, that link with net position gain all but vanished—everyone got so good at stops that shaving a tenth here and there no longer guarantees an overtake.
+
+  3. **Constructor medians tell the same story.** Mercedes and Red Bull have consistently owned the low-20s-second stops, while the rest of the field has steadily closed the gap—from a wild 4 s swing in 2015 to barely 1–2 s of spread in 2024.
+
+What started as a true “make-or-break” advantage has evolved into a grid-wide baseline of excellence. Pit crews have gone from potential spoilers to precision pros, forcing teams to chase marginal gains elsewhere—strategy, tyre management, and in-lap brilliance are now the real battlegrounds. In F1’s relentless arms race, even the pits have leveled up.
+
+#### References
+
+1. *average time lost in f1 pit stop* —Google Search., from <https://www.google.com/search?client=safari&sca_esv=f6bc877b3d7fa12d&rls=en&sxsrf=AE3TifNqc4WTWCuQtrv0RDM97OM7CGiGCg:1748850032778&q=average+time+lost+in+f1+pit+stop&spell=1&sa=X&ved=2ahUKEwjd4N-HntKNAxUOQUEAHdmZHVAQBSgAegQIDBAB&biw=1440&bih=900&dpr=2>
+
+2. *Exploring Data Distribution in R: A Comprehensive Guide* | R-bloggers., from <https://www.r-bloggers.com/2023/08/exploring-data-distribution-in-r-a-comprehensive-guide/>
+
+3. *ggplot2—What is the best plot to show a distribution in R? - Stack Overflow.*, from <https://stackoverflow.com/questions/66863301/what-is-the-best-plot-to-show-a-distribution-in-r>
+
+4. *Correlation Test Between Two Variables in R* - Easy Guides—Wiki—STHDA., from <https://www.sthda.com/english/wiki/correlation-test-between-two-variables-in-r>
+
+5. *Pearson Correlation Testing in R Programming.* - GeeksforGeeks. <https://www.geeksforgeeks.org/pearson-correlation-testing-in-r-programming/>
+
+6. Holtz, Y. *Correlogram – The R graph gallery.*, from <https://r-graph-gallery.com/correlogram.html>
+
+7. *Correlation matrix with ggally* – the R Graph Gallery, from <https://r-graph-gallery.com/199-correlation-matrix-with-ggally.html>
+
+8. *GGally R package: Extension to ggplot2 for correlation matrix and survival plots* - R software and data visualization - Easy Guides - Wiki - STHDA, from <https://www.sthda.com/english/wiki/ggally-r-package-extension-to-ggplot2-for-correlation-matrix-and-survival-plots-r-software-and-data-visualization>
+
+9. *Having many ggpairs plots side-by-side in a grid?* · Issue #256 · ggobi/ggally. GitHub. from <https://github.com/ggobi/ggally/issues/256>
+
+10. ChriiSchee. (2021, June 1). *Answer to “Arranging GGally plots with gridExtra?”* [Online post]. Stack Overflow.<https://stackoverflow.com/a/67787061>
+
+11. Harrell Jr F (2025). _Hmisc: Harrell Miscellaneous_. R package version 5.2-3,
+  <https://CRAN.R-project.org/package=Hmisc>.
+  
+12. Wickham H, Averick M, Bryan J, Chang W, McGowan LD, François R, Grolemund G, Hayes A,
+  Henry L, Hester J, Kuhn M, Pedersen TL, Miller E, Bache SM, Müller K, Ooms J, Robinson
+  D, Seidel DP, Spinu V, Takahashi K, Vaughan D, Wilke C, Woo K, Yutani H (2019).
+  “Welcome to the tidyverse.” _Journal of Open Source Software_, *4*(43), 1686.
+  doi:10.21105/joss.01686 <https://doi.org/10.21105/joss.01686>.
+  
+13.  Wilke C (2024). _cowplot: Streamlined Plot Theme and Plot Annotations for 'ggplot2'_. R
+  package version 1.1.3, <https://CRAN.R-project.org/package=cowplot>.
+
+14. Schloerke B, Cook D, Larmarange J, Briatte F, Marbach M, Thoen E, Elberg A, Crowley J
+  (2024). _GGally: Extension to 'ggplot2'_. R package version 2.2.1,
+  <https://CRAN.R-project.org/package=GGally>.
+  
+15. Henry L, Wickham H (2024). *_rlang: Functions for Base Types and Core R* and 'Tidyverse'
+  Features_. R package version 1.1.4, <https://CRAN.R-project.org/package=rlang>.
+
+
 
 <!-- Task 3 Tab: Behind the Scenes -  -->
 
