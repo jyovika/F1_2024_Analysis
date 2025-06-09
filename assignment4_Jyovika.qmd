@@ -407,6 +407,9 @@ Down below the diagonal are scatterplots with smooth LOESS lines that show trend
 
   4. Up top, you also see Spearman’s ρ and p-values — the numbers that back up what the lines are telling us statistically.
 
+**Calculating Median Pit-Stop Times by Constructor**
+
+To get a sense of each team’s typical pit-stop speed, I start by taking the raw combined_<year> data and, for 2011, do:
 ```{r}
 # 2011
 median_2011 <- combined_2011 %>%
@@ -417,6 +420,10 @@ median_2011 <- combined_2011 %>%
   ) %>%
   arrange(median_sec)
 ```
+
+– This groups all stops by `constructor`, computes the *median* of `seconds` (dropping any NAs), and also counts how many stops each team made, then sorts from fastest median to slowest.
+
+– I repeat the exact same steps for 2015, 2019 and 2024, saving those into`median_2015`, `median_2019` and `median_2024`.
 
 ```{r, echo=FALSE}
 # 2015
@@ -445,9 +452,9 @@ median_2024 <- combined_2024 %>%
     count = n()
   ) %>%
   arrange(median_sec)
-
 ```
 
+Once I’ve got one tidy table of medians per constructor for each season, I stack them together and give each row a year tag:
 ```{r}
 median_all_years <- bind_rows(
   median_2011 %>% mutate(year = 2011),
@@ -455,7 +462,10 @@ median_all_years <- bind_rows(
   median_2019 %>% mutate(year = 2019),
   median_2024 %>% mutate(year = 2024)
 )
+```
 
+Finally, I use a single `ggplot()` call with `facet_wrap(~ year)` to draw all four bar-charts side by side:
+```{r}
 ggplot(median_all_years, 
        aes(
          x    = reorder(constructor, median_sec), 
@@ -473,10 +483,23 @@ ggplot(median_all_years,
     theme_minimal() +
   theme(legend.position = "none")
 ```
+- **2011** felt a bit like back-of-the-grid chaos—HRT was lumbering through stops at almost 24 s, while Mercedes and Red Bull were already humming in the low 21 s. A nearly 3 s gap between first and last made it feel like pit-stop practice was still “caught someone napping” territory.
 
+- **2015** turned the screws: Manor Marussia couldn’t crack 26 s, but Mercedes was flirting with 22 s, and the spread ballooned to 4 s—teams either nailed it or totally blew it.
 
+- By **2019** the pack had pulled itself together—Alfa Romeo was at the back around 24 s, but most squads were squeezed into a 2 s window (mid-22s), so a stray glove or misplaced wheel gun could cost you more places than the car ahead.
 
-5.  Conclusions\
+- Fast-forward to **2024**, and it’s pure surgical precision: even the slowest stop (Sauber, ~23.5 s) is only about 1.5 s off the leaders. Mercedes and Red Bull still own the top step, but everyone’s lurking within a few tenths—pit crews have basically become pit ninjas.
+
+- Pulling all this together, a few big takeaways stand out:
+
+  1. **Pit-stop speed still matters…** every year shows a clear negative Spearman correlation between stop time and finishing position—so faster stops tend to land you further up the grid (ρs in the 0.3–0.6 range, all p < .01).
+
+  2. **…but its superpower has dimmed.** Early in the decade (2011) quicker stops even translated into extra places gained on average. By 2015 and beyond, that link with net position gain all but vanished—everyone got so good at stops that shaving a tenth here and there no longer guarantees an overtake.
+
+  3. **Constructor medians tell the same story.** Mercedes and Red Bull have consistently owned the low-20s-second stops, while the rest of the field has steadily closed the gap—from a wild 4 s swing in 2015 to barely 1–2 s of spread in 2024.
+
+What started as a true “make-or-break” advantage has evolved into a grid-wide baseline of excellence. Pit crews have gone from potential spoilers to precision pros, forcing teams to chase marginal gains elsewhere—strategy, tyre management, and in-lap brilliance are now the real battlegrounds. In F1’s relentless arms race, even the pits have leveled up.
 
 #### References
 
