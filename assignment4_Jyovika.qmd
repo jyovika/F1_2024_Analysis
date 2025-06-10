@@ -284,13 +284,19 @@ Please mention any additional files that you want the markers to review, eg. rea
 
 Formula 1 is all about razor-thin margins, and while the drivers get most of the spotlight, I’ve always been curious about how much those lightning-fast pit stops actually influence race outcomes. As a longtime fan, I wanted to go beyond the hype and use real data to see if quick pit crews really move the needle on finishing positions—especially across different eras as the sport has evolved. This analysis is about turning instinct into insight and shining a light on an often overlooked but crucial part of the race.
 
-I’m testing whether faster pit stops really boost race results by checking two things for each selected year (2011, 2015, 2019, 2024):
+#### What am I testing?
+I’m focusing on two key questions for each selected year (2011, 2015, 2019, 2024):
 
-  1. Do shorter pit-stop times (in seconds) correlate with better finishing positions?
+1. Do shorter pit-stop times (in seconds) correlate with better finishing positions?
 
-  2. Do they translate into more places gained from a driver’s starting grid spot?
+2. Do faster pit stops translate into more places gained from a driver’s starting grid spot?
 
-To analyze whether faster pit stops are associated with better race outcomes, I start by converting pit-stop durations from `milliseconds` to `seconds` and calculating `positionGain` as the difference between starting grid position and finishing position (`grid` − `positionOrder`).The code below shows the process for the 2011 season. The exact same steps are repeated for the years 2015, 2019, and 2024, with those code chunks hidden for brevity.
+Alongside this, I’m comparing the pit-stop timings of all constructors year by year using bar plots. This lets us see which teams consistently nail fast stops and how the performance gap between teams has evolved over time.
+
+#### Getting the data race-ready
+
+First up, I converted pit-stop times from `milliseconds` to `seconds` and calculated how many positions each driver gained or lost during the race (`positionGain` = `grid` − `positionOrder`). To keep things concise, I’ll show the data prep for 2011 only — the other years follow the exact same steps.
+
 
 ```{r, message=FALSE, results='hide'}
 #2011
@@ -332,20 +338,23 @@ data_2024 <- combined_2024 %>%
   select(seconds, positionOrder, positionGain)
 ```
 
-I then run Spearman’s rank-order correlation test (`rcorr()` from the Hmisc package) on the three key variables — pit-stop time (`seconds`), finishing position (`positionOrder`), and net places gained (`positionGain`). I use Spearman’s correlation because pit-stop times are skewed and non-normally distributed, and Spearman’s method is robust to this.
+##### Crunching the numbers with Spearman’s correlation
 
-I fully demonstrate the process for the 2011 season data. For 2015, 2019, and 2024, I follow the exact same procedure but keep the code hidden for brevity.
+Pit-stop times are skewed and non-normally distributed, so I use Spearman’s rank-order correlation (`rcorr()` from the Hmisc package) to robustly assess relationships between pit-stop time (`seconds`), finishing position (`positionOrde`r), and net places gained (`positionGain)`. I use Spearman’s correlation because pit-stop times are skewed and non-normally distributed, and Spearman’s method is robust to this.
 
-For visualization, I use the `ggpairs()` function from the GGally package to produce a matrix of plots for each year. This matrix includes:
+I demonstrate the process fully for 2011; the other years follow the same method.
 
-  1. Density plots on the diagonal to show the distribution of each variable.
+##### Visualizing the race data
 
-  2. Scatterplots with LOESS smoothing in the lower triangle to visualize relationships.
+To visualize these relationships, I use `ggpairs()` from the GGally package, producing a matrix of plots for each year:
 
-  3. Custom upper panels showing Spearman’s correlation coefficient (ρ) and p-value for each variable pair, annotated directly on the plot.
+  1. Density plots on the diagonal show each variable’s distribution.
 
-This combination offers both visual and statistical insight into how pit-stop speed relates to finishing positions and position gains, helping to paint a clear picture of the impact across different F1 seasons.
+  2. Scatterplots with LOESS smoothing below the diagonal highlight trends.
 
+  3. Custom upper panels display Spearman’s ρ and p-values annotated on each plot for quick interpretation.
+
+Here’s the custom function to add correlation stats to the plots:
 ```{r, message=FALSE, fig.show='hide'}
 library(Hmisc)
 library(rlang)
@@ -376,7 +385,10 @@ upper_fn <- function(data, mapping, ...) {
     ylim(range(y, na.rm = TRUE)) +
     theme_void()
 }
+```
 
+Example for 2011:
+```{r}
 p1<- ggpairs(
   data_2011,
   lower = list(continuous = "smooth"),       
@@ -384,7 +396,7 @@ p1<- ggpairs(
   upper = list(continuous = wrap(upper_fn))   
 ) + ggtitle("2015: PitStop ↔ Finish / Gain")
 ```
-
+Plots for 2015, 2019, and 2024 follow the same pattern (p2, p3, p4).
 ```{r, echo=FALSE}
 p2<- ggpairs(
   data_2015,
@@ -410,8 +422,7 @@ p4<- ggpairs(
 ) + ggtitle("2024: PitStop ↔ Finish / Gain")
 ```
 
-Finally, I use the cowplot package to arrange the four ggpairs() plots—one for each year—into a clean 2×2 grid for easy side-by-side comparison:
-
+For easy comparison, I arrange the four plots into a 2×2 grid with cowplot:
 ```{r, message=FALSE}
 library(cowplot)
 
@@ -424,11 +435,11 @@ plot_grid(
 
 ```
 
-Here’s the lowdown on these plots for 2011, 2015, 2019, and 2024. Each grid shows how pit-stop time, finishing position, and places gained relate to each other.
+##### What do the plots tell us?
 
 On the diagonals, you see density curves for each variable — so you get a feel for how pit-stop times and race results are spread out in each year.
 
-Down below the diagonal are scatterplots with smooth LOESS lines that show trends between variables:
+- Down below the diagonal are scatterplots with smooth LOESS lines that show trends between variables:
 
   1. **For pit-stop time vs. finishing position**, the LOESS line slopes up every year — meaning slower pit stops usually go with worse finishing spots. So yeah, faster stops do tend to help you finish higher.
 
@@ -438,9 +449,10 @@ Down below the diagonal are scatterplots with smooth LOESS lines that show trend
 
   4. Up top, you also see Spearman’s ρ and p-values — the numbers that back up what the lines are telling us statistically.
 
-**Calculating Median Pit-Stop Times by Constructor**
+#### Calculating Median Pit-Stop Times by Constructor
 
 To get a sense of each team’s typical pit-stop speed, I start by taking the raw combined_<year> data and, for 2011, do:
+
 ```{r}
 # 2011
 median_2011 <- combined_2011 %>%
@@ -451,10 +463,7 @@ median_2011 <- combined_2011 %>%
   ) %>%
   arrange(median_sec)
 ```
-
-– This groups all stops by `constructor`, computes the *median* of `seconds` (dropping any NAs), and also counts how many stops each team made, then sorts from fastest median to slowest.
-
-– I repeat the exact same steps for 2015, 2019 and 2024, saving those into`median_2015`, `median_2019` and `median_2024`.
+The same steps are done for 2015, 2019, and 2024 (hidden here).
 
 ```{r, echo=FALSE}
 # 2015
@@ -514,6 +523,9 @@ ggplot(median_all_years,
     theme_minimal() +
   theme(legend.position = "none")
 ```
+
+##### Pit stop precision over the years
+
 - **2011** felt a bit like back-of-the-grid chaos—HRT was lumbering through stops at almost 24 s, while Mercedes and Red Bull were already humming in the low 21 s. A nearly 3 s gap between first and last made it feel like pit-stop practice was still “caught someone napping” territory.
 
 - **2015** turned the screws: Manor Marussia couldn’t crack 26 s, but Mercedes was flirting with 22 s, and the spread ballooned to 4 s—teams either nailed it or totally blew it.
