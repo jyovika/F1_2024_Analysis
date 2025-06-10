@@ -70,14 +70,22 @@ There is no strict structure for you to follow. However, here is a skeleton stru
 
 ## Behind the Scenes
 
-### What's in this section
+#### 5. Tell us about parts of your data processing or analysis that weren’t “sexy” and wouldn’t typically be included in a blog post.
 
-### Were there any challenges that you faced in conducting this analysis.
-I started by trying to calculate the mean pit-stop time so I could include it in my “Why I Chose This Question” section, but I quickly realized this dataset is WILD. Most durations are in seconds.milliseconds, but because the data spans 2009–2024, some entries are in minutes:seconds.milliseconds—which completely threw off the mean.
+I started by trying to calculate the mean pit-stop time so I could include it in my “Why I Chose This Question” section, but I quickly realized this dataset is WILD. Most durations are in seconds.milliseconds, but because the data spans 2009–2024, some entries are in minutes:seconds.milliseconds—which completely threw off the mean. 
 
 Next, I tried plotting a distribution to highlight the outliers (refer to Trial data.qmd on commit 3f3c5dd to see that plot), but the values ranged from 12.897 to 3069.017, so the plot wasn’t very useful either. In the end, I decided to report the median instead—it seemed like the smartest choice.
 
-Here is where you should tell us about your reflection on your analysis (Task 3).
+#### 6.  Were there any challenges that you faced in conducting this analysis.
 
-Again, these are the details about **your** perspective and the gritty details behind the scenes of your analysis.
+I think the worst part of analyzing this data was figuring out how to use the API with JSON. Eventually, I gave up and luckily found CSV files that start from 2009.
+
+The second worst part was figuring out how to put all my ggpairs graphs together because, at first, all the solutions I found were for ggplots. Apparently, ggplots and ggpairs have different classes, so those solutions weren’t working—until I finally found one lost-in-time post on Stack Overflow that used a solution someone shared on GitHub, which finally worked for me.
+
+However, learning how to do correlation tests and visualize them was fairly simple in R, since I understood the fundamentals from my econometrics background.
+#### 7.  Tell us about any imperfect parts of your work and how you would like to expand or improve this analysis in future?
+
+#### 8. Also submit 4 earlier versions of your assignment that show your iterative process.
+
+
 ::::::
