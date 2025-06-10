@@ -591,11 +591,24 @@ What started as a true “make-or-break” advantage has evolved into a grid-wid
 
 ## Behind the Scenes
 
-### What's in this section
+#### 5. Tell us about parts of your data processing or analysis that weren’t “sexy” and wouldn’t typically be included in a blog post.
 
-### Were there any challenges that you faced in conducting this analysis.
+I started by trying to calculate the mean pit-stop time so I could include it in my “Why I Chose This Question” section, but I quickly realized this dataset is WILD. Most durations are in seconds.milliseconds, but because the data spans 2009–2024, some entries are in minutes:seconds.milliseconds—which completely threw off the mean. 
 
-Here is where you should tell us about your reflection on your analysis (Task 3).
+Next, I tried plotting a distribution to highlight the outliers (refer to Trial data.qmd on commit 3f3c5dd to see that plot), but the values ranged from 12.897 to 3069.017, so the plot wasn’t very useful either. In the end, I decided to report the median instead—it seemed like the smartest choice.
 
-Again, these are the details about **your** perspective and the gritty details behind the scenes of your analysis.
+#### 6.  Were there any challenges that you faced in conducting this analysis.
+
+I think the worst part of analyzing this data was figuring out how to use the API with JSON. Eventually, I gave up and luckily found CSV files that start from 2009.
+
+The second worst part was figuring out how to put all my ggpairs graphs together because, at first, all the solutions I found were for ggplots. Apparently, ggplots and ggpairs have different classes, so those solutions weren’t working—until I finally found one lost-in-time post on Stack Overflow that used a solution someone shared on GitHub, which finally worked for me.
+
+However, learning how to do correlation tests and visualize them was fairly simple in R, since I understood the fundamentals from my econometrics background.
+
+#### 7.  Tell us about any imperfect parts of your work and how you would like to expand or improve this analysis in future?
+
+In an ideal world (where I have access to the perfect dataset), I would take into account racing incidents, weather, and safety-car interventions, since these factors can greatly affect race outcomes and whether a driver can win or gain positions. For example, in wet conditions it’s harder to overtake, or a 20-second gap between P1 and P2 can vanish after a safety-car intervention—giving P2 a shot at victory. Unfortunately, I didn’t have access to that data. This limitation is beyond the scope of my current analysis, but it’s something I’d love to explore in the future if I had the right resources.
+
+#### 8. Also submit 4 earlier versions of your assignment that show your iterative process.
+
 ::::::
