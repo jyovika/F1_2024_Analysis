@@ -585,8 +585,6 @@ What started as a true “make-or-break” advantage has evolved into a grid-wid
 15. Henry L, Wickham H (2024). *_rlang: Functions for Base Types and Core R* and 'Tidyverse'
   Features_. R package version 1.1.4, <https://CRAN.R-project.org/package=rlang>.
 
-
-
 <!-- Task 3 Tab: Behind the Scenes -  -->
 
 ## Behind the Scenes
@@ -610,5 +608,16 @@ However, learning how to do correlation tests and visualize them was fairly simp
 In an ideal world (where I have access to the perfect dataset), I would take into account racing incidents, weather, and safety-car interventions, since these factors can greatly affect race outcomes and whether a driver can win or gain positions. For example, in wet conditions it’s harder to overtake, or a 20-second gap between P1 and P2 can vanish after a safety-car intervention—giving P2 a shot at victory. Unfortunately, I didn’t have access to that data. This limitation is beyond the scope of my current analysis, but it’s something I’d love to explore in the future if I had the right resources.
 
 #### 8. Also submit 4 earlier versions of your assignment that show your iterative process.
+
+Please refer to my [GitHub repo](https://github.com/jyovika/F1_Analysis) and then look at these hash commits.
+  
+  1. **493dfb2** - *Tried to find mean duration of pitstop for “Why I Chose This” section (failed)* - I calculated an overall mean pit-stop time before checking formats, then discovered some entries were recorded as minutes:seconds.milliseconds. That blew up my average. **Learned:** always inspect and standardize units before summarising.
+
+  2. **3f3c5dd** - *Tried to see distribution of pitstop times* - I plotted a raw histogram and saw values from ~12.9 s up to >3000 s—clearly outliers (race stoppages, bad formatting). Learned: Exploratory plots are crucial for spotting data quirks early.
+  
+  3. **03761b9** - *Data processing V2* - After filtering out unrealistic pit-stop durations, I overhauled my wrangling to slice per year and compute `seconds` and `positionGain` cleanly. Learned: Refactoring early wrangling pays off in cleaner downstream analysis.
+  
+  4. **5fdf577** - *Decided to use Spearman rank order instead and added references* - I switched from Pearson to Spearman’s correlation to handle skewed data and documented my methodology with proper citations.
+**Learned:** Choosing the right statistical test and citing your sources makes your results more robust and reproducible.
 
 ::::::
