@@ -1,5 +1,5 @@
 ---
-title: "Pit Stop Power Play: Do Lightning-Fast Tire Swaps Actually Improve Your Race Results?"
+title: "Pit Stop Power Play: Are Lightning-Fast Tire Swaps Associated with Better Race Results?"
 subtitle: "Assignment 4 ETC5512"
 author: Jyovika Aswale
 format: html
@@ -11,10 +11,12 @@ editor: visual
 
 ## Data and Documenting
 
-
+> **Data dictionary & README:**  
+> See `data_dictionary.md` for complete definitions of every field (raceId, driverId, milliseconds, etc.), and check out `README.md` for an overview of the project structure, data sources, and how to run the analysis—so you know exactly what’s under the hood.  
+ 
 #### 1.1 Main Question
 
-Do faster pitstops actually lead to better race results, or is it basically a non-factor?
+Do faster pitstops show a correlation with better race results, or is the association negligible?
 
 #### 1.2 Sub-Questions
 
@@ -22,11 +24,11 @@ Do faster pitstops actually lead to better race results, or is it basically a no
 
     -   What’s the cutoff for a “quick” pitstop (e.g., top 10% of pit times)?
 
-2.  **What’s the relationship between pitstop speed and final finish position??**
+2.  **What’s the correlation between pitstop speed and finishing position?**
 
-    -   Is there a clear pattern where drivers with lightning-fast stops consistently finish higher?
+    -   Do drivers with quicker stops tend to place higher on the grid?
 
-3.  **Is this “pit-speed → race outcome” thing consistent across seasons?**
+3.  **Is the correlation between pit-speed and race outcome consistent across seasons?****
 
     -   Did pit-crew wizardry matter more back in, say, 2010 than it does in 2024?
 
@@ -34,11 +36,9 @@ Do faster pitstops actually lead to better race results, or is it basically a no
 
 #### 1.3 Why I chose this question
 
-#### 1.3 Why I chose this question
-
 1.  **Data-Driven Rigor: ** I’m a lifelong F1 fan who’s always been fascinated by the strategy and precision behind every race. Now, with pit-stop durations and finishing positions available in public data, I can finally test my gut feelings with real numbers instead of just guessing.
 
-2.  **Putting Pit Crew Speed Under the Microscope :** When I watch races, those insanely quick pit stops always catch my eye and seem like game changers. But I want to know if these fast stops are rare clutch moments or if they actually impact race outcomes consistently over many seasons. This analysis aims to figure out whether pit-crew speed really moves the needle or if it’s just hype.
+2.  **Putting Pit Crew Speed Under the Microscope :** When I watch races, those insanely quick pit stops always catch my eye and seem like game changers. But I want to know if these fast stops are rare clutch moments or if they actually are associated with better race outcomes consistently over many seasons. This analysis aims to figure out whether pit-crew speed really moves the needle or if it’s just hype.
 
 3. **Checking How It Holds Up Over Time** F1 is always changing—with new rules, tech, and tactics—so I’m curious whether quick pit stops mattered more back in 2010 or if they still hold the same weight in 2024. By comparing multiple seasons, I want to see if pit-stop efficiency is still a key player or if its influence has faded.
 
@@ -214,7 +214,8 @@ combined_df <- pitstops_df %>%
 
 **Step 3:** Filter Data by Year and Pit Stop Duration:
 
-To focus the analysis on realistic pit stop times, I filtered out stops longer than 50 seconds and created separate datasets for each target year (2011, 2015, 2019, 2024).
+> **Note on outliers:**  
+> Any pit stop longer than 50 s is mostly due to an incident—so we treat those as outliers. Filtering at 50 s ensures we focus on genuine tyre-change performance.  
 
 ```{r}
 combined_2011 <- combined_df %>%
@@ -260,43 +261,9 @@ team_colors <- c(
 )
 ```
 
-4. **Assumptions and Observations**
+**Step 5:** Prepare Yearly Pit‐Stop & Position Data
 
-    a. **Long Pit Stops as Outliers:** Upon inspecting the data, I noticed unusually long pit stops—some lasting up to around one minute or slightly more—in 2015, 2019, and 2024. These are almost certainly due to race stoppages (e.g., red flags for weather or accidents) rather than normal tire changes. Such extreme values act as outliers and will be handled accordingly in the analysis to avoid skewing results.
-
-    b. **Filtering Outliers:** When I remove or treat these extended pit-stop durations (around 50 seconds), I assume these represent race interruptions rather than genuine tire changes.
-
-    c. **Completeness of Data:** I assume the Ergast database has no missing or erroneous rows for my chosen years. Missing pit-stop records or incomplete race results could bias my findings.
-    
-
-    
-
-
-### Remember
-
-Please mention any additional files that you want the markers to review, eg. read me, meta data etc.
-
-<!-- Task 2 Tab: Writing your blogpost -->
-
-## Blog Post
-
-### The Pitstop Puzzle: Speedy Tires vs. Final Position
-
-Formula 1 is all about razor-thin margins, and while the drivers get most of the spotlight, I’ve always been curious about how much those lightning-fast pit stops actually influence race outcomes. As a longtime fan, I wanted to go beyond the hype and use real data to see if quick pit crews really move the needle on finishing positions—especially across different eras as the sport has evolved. This analysis is about turning instinct into insight and shining a light on an often overlooked but crucial part of the race.
-
-#### What am I testing?
-I’m focusing on two key questions for each selected year (2011, 2015, 2019, 2024):
-
-1. Do shorter pit-stop times (in seconds) correlate with better finishing positions?
-
-2. Do faster pit stops translate into more places gained from a driver’s starting grid spot?
-
-Alongside this, I’m comparing the pit-stop timings of all constructors year by year using bar plots. This lets us see which teams consistently nail fast stops and how the performance gap between teams has evolved over time.
-
-#### Getting the data race-ready
-
-First up, I converted pit-stop times from `milliseconds` to `seconds` and calculated how many positions each driver gained or lost during the race (`positionGain` = `grid` − `positionOrder`). To keep things concise, I’ll show the data prep for 2011 only — the other years follow the exact same steps.
-
+Convert raw pit‐stop durations from milliseconds to seconds and compute each driver’s net positions gained (`positionGain`) so the data’s ready for correlation and plotting.
 
 ```{r, message=FALSE, results='hide'}
 #2011
@@ -309,7 +276,7 @@ data_2011 <- combined_2011 %>%
   select(seconds, positionOrder, positionGain)
 ```
 
-```{r, echo=FALSE, results='hide'}
+```{r, message=FALSE, results='hide'}
 #2015
 combined_2015 <- combined_2015 %>%
   mutate(
@@ -338,27 +305,15 @@ data_2024 <- combined_2024 %>%
   select(seconds, positionOrder, positionGain)
 ```
 
-##### Crunching the numbers with Spearman’s correlation
+**Step 6:** Define Correlation‐Annotation Function
 
-Pit-stop times are skewed and non-normally distributed, so I use Spearman’s rank-order correlation (`rcorr()` from the Hmisc package) to robustly assess relationships between pit-stop time (`seconds`), finishing position (`positionOrde`r), and net places gained (`positionGain)`. I use Spearman’s correlation because pit-stop times are skewed and non-normally distributed, and Spearman’s method is robust to this.
-
-I demonstrate the process fully for 2011; the other years follow the same method.
-
-##### Visualizing the race data
-
-To visualize these relationships, I use `ggpairs()` from the GGally package, producing a matrix of plots for each year:
-
-  1. Density plots on the diagonal show each variable’s distribution.
-
-  2. Scatterplots with LOESS smoothing below the diagonal highlight trends.
-
-  3. Custom upper panels display Spearman’s ρ and p-values annotated on each plot for quick interpretation.
-
+Create a custom function, `upper_fn()`, that computes Spearman’s ρ and p-value for any two variables and then annotates those statistics in the upper panels of a `ggpairs()` plot.
 Here’s the custom function to add correlation stats to the plots:
 ```{r, message=FALSE, fig.show='hide'}
 library(Hmisc)
 library(rlang)
 library(GGally)
+
 upper_fn <- function(data, mapping, ...) {
 
     x_name <- as_label(mapping$x)
@@ -386,8 +341,12 @@ upper_fn <- function(data, mapping, ...) {
     theme_void()
 }
 ```
+**Step 7:** Create Correlation Matrices with ggpairs()
+Use the custom upper_fn() alongside LOESS smoothing and density diagonals to build a 3×3 correlation matrix for each season. Each panel shows:
 
-Example for 2011:
+  - Lower: scatter + LOESS curve
+  - Diag: density plot
+  - Upper: Spearman’s ρ & p-value via upper_fn()
 ```{r}
 p1<- ggpairs(
   data_2011,
@@ -395,9 +354,7 @@ p1<- ggpairs(
   diag  = list(continuous = "densityDiag"),   
   upper = list(continuous = wrap(upper_fn))   
 ) + ggtitle("2015: PitStop ↔ Finish / Gain")
-```
-Plots for 2015, 2019, and 2024 follow the same pattern (p2, p3, p4).
-```{r, echo=FALSE}
+
 p2<- ggpairs(
   data_2015,
   lower = list(continuous = "smooth"),       
@@ -422,8 +379,104 @@ p4<- ggpairs(
 ) + ggtitle("2024: PitStop ↔ Finish / Gain")
 ```
 
-For easy comparison, I arrange the four plots into a 2×2 grid with cowplot:
-```{r, message=FALSE}
+**Step 8:** Summarize Median Pit-Stop Times by Constructor
+
+Generate a tidy table of each team’s median stop time for each season and stitch all years together:
+
+  - Group each season’s dataset by constructor.
+  
+  - Summarise within each group to compute
+    - median_sec = median pit-stop time (in seconds)
+    - count = number of stops
+    
+  - Arrange the summary so constructors with the fastest median times appear first.
+  
+  - Repeat those three steps for 2011, 2015, 2019, and 2024.
+  
+  - Tag each resulting table with its year (e.g. median_2011 %>% mutate(year = 2011)).
+  
+  - Bind all four per-year summaries with bind_rows() into one master tibble, median_all_years.
+
+```{r}
+# 2011
+median_2011 <- combined_2011 %>%
+  group_by(constructor) %>%
+  summarise(
+    median_sec = median(seconds, na.rm = TRUE),
+    count = n()
+  ) %>%
+  arrange(median_sec)
+
+# 2015
+median_2015 <- combined_2015 %>%
+  group_by(constructor) %>%
+  summarise(
+    median_sec = median(seconds, na.rm = TRUE),
+    count = n()
+  ) %>%
+  arrange(median_sec)
+
+# 2019
+median_2019 <- combined_2019 %>%
+  group_by(constructor) %>%
+  summarise(
+    median_sec = median(seconds, na.rm = TRUE),
+    count = n()
+  ) %>%
+  arrange(median_sec)
+
+# 2024
+median_2024 <- combined_2024 %>%
+  group_by(constructor) %>%
+  summarise(
+    median_sec = median(seconds, na.rm = TRUE),
+    count = n()
+  ) %>%
+  arrange(median_sec)
+
+median_all_years <- bind_rows(
+  median_2011 %>% mutate(year = 2011),
+  median_2015 %>% mutate(year = 2015),
+  median_2019 %>% mutate(year = 2019),
+  median_2024 %>% mutate(year = 2024)
+)
+```
+
+
+4. **Assumptions and Observations**
+
+    a. **Long Pit Stops as Outliers:** Upon inspecting the data, I noticed unusually long pit stops—some lasting up to around one minute or slightly more—in 2015, 2019, and 2024. These are almost certainly due to race stoppages (e.g., red flags for weather or accidents) rather than normal tire changes. Such extreme values act as outliers and will be handled accordingly in the analysis to avoid skewing results.
+
+    b. **Filtering Outliers:** When I remove or treat these extended pit-stop durations (around 50 seconds), I assume these represent race interruptions rather than genuine tire changes.
+
+    c. **Completeness of Data:** I assume the Ergast database has no missing or erroneous rows for my chosen years. Missing pit-stop records or incomplete race results could bias my findings.
+
+<!-- Task 2 Tab: Writing your blogpost -->
+
+## Blog Post
+
+### The Pitstop Puzzle: Speedy Tires vs. Final Position
+
+Formula 1 is all about razor-thin margins, and while the drivers get most of the spotlight, I’ve always been curious about whether those lightning-fast pit stops are associated with higher finishing positions. As a longtime fan, I wanted to go beyond the hype and use real data to see if quick pit crews are correlated with better race outcomes—especially across different eras as the sport has evolved.
+
+#### What am I testing?
+I’m focusing on two key questions for each selected year (2011, 2015, 2019, 2024):
+
+1. Do shorter pit-stop times (in seconds) correlate with better finishing positions?
+
+2. Do faster pit stops translate into more places gained from a driver’s starting grid spot?
+
+Alongside this, I’m comparing the pit-stop timings of all constructors year by year using bar plots. This lets us see which teams consistently nail fast stops and how the performance gap between teams has evolved over time.
+
+##### Correlation Analysis & Visualization
+
+Pit-stop times are skewed and non-normally distributed, so I use Spearman’s rank-order correlation (`rcorr()` from the Hmisc package) to robustly assess how pit-stop duration (seconds), finishing position (`positionOrder`), and net places gained (`positionGain`) move together. To bring those relationships to life, I then feed the same data into `ggpairs()` (GGally), which produces:
+
+  1. Density plots on the diagonal for each variable’s distribution.
+  2. Scatterplots with LOESS smoothing below the diagonal to highlight trends.
+  3. Custom upper panels that annotate Spearman’s ρ and p-values for quick statistical reference.
+
+```{r, message=FALSE, echo=FALSE}
 library(cowplot)
 
 plot_grid(
@@ -451,61 +504,9 @@ On the diagonals, you see density curves for each variable — so you get a feel
 
 #### Calculating Median Pit-Stop Times by Constructor
 
-To get a sense of each team’s typical pit-stop speed, I start by taking the raw combined_<year> data and, for 2011, do:
-
-```{r}
-# 2011
-median_2011 <- combined_2011 %>%
-  group_by(constructor) %>%
-  summarise(
-    median_sec = median(seconds, na.rm = TRUE),
-    count = n()
-  ) %>%
-  arrange(median_sec)
-```
-The same steps are done for 2015, 2019, and 2024 (hidden here).
+I prepped each season’s data by grouping stops by constructor, calculating the median pit‐stop time, and combining all four years into one table. Then, with a single `ggplot()` call and `facet_wrap(~year)`, I generated the faceted bar chart below—showing each team’s median stop time for 2011, 2015, 2019, and 2024, side by side.
 
 ```{r, echo=FALSE}
-# 2015
-median_2015 <- combined_2015 %>%
-  group_by(constructor) %>%
-  summarise(
-    median_sec = median(seconds, na.rm = TRUE),
-    count = n()
-  ) %>%
-  arrange(median_sec)
-
-# 2019
-median_2019 <- combined_2019 %>%
-  group_by(constructor) %>%
-  summarise(
-    median_sec = median(seconds, na.rm = TRUE),
-    count = n()
-  ) %>%
-  arrange(median_sec)
-
-# 2024
-median_2024 <- combined_2024 %>%
-  group_by(constructor) %>%
-  summarise(
-    median_sec = median(seconds, na.rm = TRUE),
-    count = n()
-  ) %>%
-  arrange(median_sec)
-```
-
-Once I’ve got one tidy table of medians per constructor for each season, I stack them together and give each row a year tag:
-```{r}
-median_all_years <- bind_rows(
-  median_2011 %>% mutate(year = 2011),
-  median_2015 %>% mutate(year = 2015),
-  median_2019 %>% mutate(year = 2019),
-  median_2024 %>% mutate(year = 2024)
-)
-```
-
-Finally, I use a single `ggplot()` call with `facet_wrap(~ year)` to draw all four bar-charts side by side:
-```{r}
 ggplot(median_all_years, 
        aes(
          x    = reorder(constructor, median_sec), 
@@ -542,7 +543,7 @@ ggplot(median_all_years,
 
   3. **Constructor medians tell the same story.** Mercedes and Red Bull have consistently owned the low-20s-second stops, while the rest of the field has steadily closed the gap—from a wild 4 s swing in 2015 to barely 1–2 s of spread in 2024.
 
-What started as a true “make-or-break” advantage has evolved into a grid-wide baseline of excellence. Pit crews have gone from potential spoilers to precision pros, forcing teams to chase marginal gains elsewhere—strategy, tyre management, and in-lap brilliance are now the real battlegrounds. In F1’s relentless arms race, even the pits have leveled up.
+What started as a true ‘make-or-break’ advantage has evolved into a grid-wide baseline of excellence. We observe a consistently negative Spearman’s correlation between stop time and finishing position—faster stops tend to coincide with higher placements—but this analysis does not prove that quick pit stops cause better results. Instead, it highlights a strong association: as teams have professionalized their crews, median stop times have compressed and converged, making pit-stop speed just one of many finely tuned factors in the modern F1 arms race.
 
 #### References
 
@@ -584,6 +585,12 @@ What started as a true “make-or-break” advantage has evolved into a grid-wid
   
 15. Henry L, Wickham H (2024). *_rlang: Functions for Base Types and Core R* and 'Tidyverse'
   Features_. R package version 1.1.4, <https://CRAN.R-project.org/package=rlang>.
+  
+I acknowledge that I have used AI-assisted tools to support my learning process in coding and improving my written English. These tools have helped me understand programming concepts, refine my code, and enhance my academic writing. However, all critical thinking, analysis, and final decisions in this assignment are my own, ensuring that I have fairly and ethically used AI as a learning aid rather than a substitute for my own work.
+
+<https://chatgpt.com/share/6857696c-e0f8-8010-8c9c-d7879344b744>
+
+
 
 <!-- Task 3 Tab: Behind the Scenes -  -->
 
